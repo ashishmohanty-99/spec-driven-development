@@ -4,6 +4,9 @@ const path = require('path');
 const fs = require('fs');
 const { init, writeProfile } = require('../lib/init');
 const { listFeatures, newFeature, verifyFeature, phaseOf } = require('../lib/spec');
+const { genTests } = require('../lib/gen-tests');
+const { regression } = require('../lib/regression');
+const { pentest, INSTALL_HINT } = require('../lib/pentest');
 const { exists } = require('../lib/util');
 const pkg = require('../package.json');
 
@@ -16,6 +19,10 @@ Usage: sdd <command> [options]
   new <feature-name>                        Create .sdd/specs/<feature-name>/spec.md from the template
   status                                    Show each feature's phase and progress
   verify [feature] [--strict]               Gate check: REQ → task → test traceability, open questions
+  gen-tests <feature>                       Generate/refresh a Playwright e2e spec from spec.md
+  regression [--strict] [--pentest <target>]  Run unit tests + e2e suite + all gates (CI entry point)
+  pentest --target <path|url> [--fail-on <level>] [--instruction <text>]
+                                             Run a Strix security scan (https://github.com/usestrix/strix)
   doctor                                    Check installation health
   help | version
 
@@ -27,9 +34,12 @@ function parse(argv) {
     const x = argv[i];
     if (x.startsWith('--')) {
       const k = x.slice(2);
-      if (['agent', 'dir'].includes(k)) a.flags[k] = argv[++i]; else a.flags[k] = true;
+      if (['agent', 'dir', 'target', 'fail-on', 'instruction', 'diff-base', 'pentest', 'scan-mode'].includes(k)) {
+        (a.flags[k] = a.flags[k] || []).push(argv[++i]);
+      } else a.flags[k] = true;
     } else a._.push(x);
   }
+  for (const k of Object.keys(a.flags)) if (Array.isArray(a.flags[k]) && a.flags[k].length === 1 && k !== 'target') a.flags[k] = a.flags[k][0];
   return a;
 }
 
@@ -70,6 +80,28 @@ function main(argv) {
         bad += r.errors.length;
       }
       return bad ? 1 : 0;
+    }
+    case 'gen-tests': {
+      if (!rest[0]) { out('Usage: sdd gen-tests <feature-name>'); return 2; }
+      const { file, created } = genTests(root, rest[0]);
+      out(`${created ? 'Created' : 'Updated'} ${path.relative(root, file)}`);
+      out('First time: npm i -D @playwright/test && npx playwright install chromium');
+      out('Then fill in tests/support/ui-connector.js (or .sdd/extensions/ui-login.js for auth) with real selectors, and run: npx playwright test');
+      return 0;
+    }
+    case 'regression': {
+      const target = flags.pentest || null;
+      const r = regression(root, { strict: !!flags.strict, pentestTarget: Array.isArray(target) ? target[0] : target });
+      out('\nRegression summary:');
+      for (const res of r.results) out(`  ${res.skipped ? '·' : res.status === 0 ? '✓' : '✗'} ${res.label}${res.note ? `  (${res.note})` : ''}`);
+      return r.ok ? 0 : 1;
+    }
+    case 'pentest': {
+      const target = flags.target;
+      if (!target) { out('Usage: sdd pentest --target <path|url> [--target <another>] [--fail-on low|medium|high|critical] [--instruction "..."]'); return 2; }
+      const p = pentest({ target, failOn: flags['fail-on'], instruction: flags.instruction, diffBase: flags['diff-base'], scanMode: flags['scan-mode'] });
+      if (!p.ran) { out(p.reason || INSTALL_HINT); return 0; }
+      return p.status ?? 1;
     }
     case 'doctor': {
       const checks = [

@@ -10,19 +10,21 @@ Verification answers one question: does the code satisfy every approved requirem
 
 ## Process
 1. **Mechanical gate.** `npx specpilot verify <feature> --strict`. Every ERROR must be fixed: uncovered requirements, orphan tasks, requirements with completed tasks but no test naming them, leftover clarification markers.
-2. **Full project checks.** Run the profile's build, lint, typecheck and test commands. Record results.
-3. **Evidence table.** For each requirement, record the test (path::name) and what it asserts. Put it in `.sdd/specs/<feature>/verification.md`:
+2. **Regression sweep.** `npx specpilot regression --strict` runs the project's own tests, the generated Playwright suite (`test-automation`), and the traceability gates in one pass. If no e2e suite exists yet for user-facing requirements, run `test-automation` first.
+3. **Full project checks.** Run the profile's build, lint, typecheck and test commands. Record results.
+4. **Evidence table.** For each requirement, record the test (path::name) and what it asserts. Put it in `.sdd/specs/<feature>/verification.md`:
    | REQ | Test | Result | Notes |
-4. **Behavioural check.** For user-facing behaviour, exercise it (CLI run, request, browser). A passing unit test does not replace seeing it work.
-5. **Five-axis review** of the diff against the base branch (use the `spec-reviewer` subagent for an independent read):
+5. **Behavioural check.** For user-facing behaviour, exercise it (CLI run, request, browser). A passing unit test does not replace seeing it work.
+6. **Five-axis review** of the diff against the base branch (use the `spec-reviewer` subagent for an independent read):
    - **Correctness** vs spec, edge cases, error paths
    - **Readability** and consistency with profile conventions
    - **Architecture** vs constitution invariants
    - **Security**: input handling, authz, secrets, dependency changes
    - **Performance**: obvious hot paths, N+1, unbounded work
-6. **Scope audit.** Diff contains nothing unrelated to listed tasks.
-7. Extension gates: read `.sdd/extensions/gates.md` and satisfy or report each.
-8. Report: pass/fail per requirement, defects found, residual risk. **Stop** for human sign-off.
+   - **Security**, deeper than the checklist above: if the change touches auth, input handling or a new endpoint, run `security-pentest`.
+7. **Scope audit.** Diff contains nothing unrelated to listed tasks.
+8. Extension gates: read `.sdd/extensions/gates.md` and satisfy or report each.
+9. Report: pass/fail per requirement, defects found, residual risk. **Stop** for human sign-off.
 
 ## Common Rationalizations
 | Rationalization | Reality |

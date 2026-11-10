@@ -10,6 +10,7 @@ never overwrites. Skills are written to read these files when they exist.
 | `tools.md` | How the agent calls your internal tools: command, arguments, expected output, failure meaning |
 | `glossary.md` | Domain vocabulary used when specifying and clarifying |
 | `templates/*.md` (under `.sdd/templates/`) | Replace the spec/plan/tasks/ADR templates; `sdd new` uses `.sdd/templates/spec.md` first |
+| `ui-login.js` | Your app's login flow for generated Playwright tests; copy from `ui-login.example.js` |
 
 ## Example: wrapping an internal automation without exposing it
 `.sdd/extensions/tools.md`:

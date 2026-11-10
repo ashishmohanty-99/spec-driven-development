@@ -5,7 +5,7 @@
     {
       "name": "specpilot",
       "source": "./",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "Codebase-aware Spec-Driven Development kit: skills, commands and reviewer subagents.",
       "license": "MIT",
       "keywords": ["sdd", "spec-driven-development", "agents", "skills"]

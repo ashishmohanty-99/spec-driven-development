@@ -22,6 +22,8 @@
 | Tasks | `- [ ] T-001 title (covers: REQ-001, REQ-002)` | `lib/spec.js` |
 | Tests | any test file containing `REQ-###` | `lib/spec.js` |
 | Profile | `codebase-profile.json` (+ rendered `.md`) | `lib/scan.js` |
+| Scenario | `- REQ-001 — Given …, when …, then …` | `lib/spec.js` (`parseScenarios`) |
+| Generated e2e spec | `tests/e2e/<feature>.spec.js`, `SPECPILOT:GENERATED-BEGIN/END` markers | `lib/gen-tests.js` |
 
 Parsers ignore fenced code and HTML comments so examples never count as requirements.
 
@@ -34,6 +36,28 @@ Parsers ignore fenced code and HTML comments so examples never count as requirem
 
 Human approval itself is not mechanisable: the status line is a convention enforced by process and review.
 
+## Regression and security layer
+```
+spec.md (REQ ids + Given/When/Then)
+   │  lib/gen-tests.js
+   ▼
+tests/e2e/<feature>.spec.js  ──▶  tests/support/ui-connector.js  ──▶  your running app
+   │  (test titles carry REQ ids, so they count toward verify's coverage)
+   ▼
+lib/regression.js  ──▶  runs: project "test" script, `playwright test`, every feature's verify
+   │                    (+ optionally) lib/pentest.js ──▶ `strix` CLI (separate OSS tool, not vendored)
+   ▼
+single exit code — the one check a CI pipeline needs
+```
+- `gen-tests` only *generates structure* (one test per requirement, titled with its id); it cannot
+  know your selectors, so `act`/`expect` bodies start as placeholders the human fills in through the
+  `ui-connector.js` indirection layer. This keeps the generator decoupled from any particular
+  frontend framework.
+- `pentest.js` never shells out destructively and never fakes a result: missing install or
+  credentials is reported as `{ ran: false, reason }`, which the CLI and `regression` both render as
+  a skip (exit 0 for that step alone), not a pass. This is the same "don't let the agent talk past a
+  gate" principle applied to a tool outside the repo.
+
 ## Design decisions
 - **Zero dependencies, Node ≥18:** installs anywhere `npx` works, nothing to audit or update.
 - **Names and manifests only in scans:** minimises exposure of proprietary code and secrets.
@@ -42,6 +66,8 @@ Human approval itself is not mechanisable: the status line is a convention enfor
   Keeps core upgradable (`init --force`) without merging org changes.
 - **Not hosted:** "SaaS-like" delivery is a one-command install. A hosted dashboard can read `.sdd/`
   without any format change.
+- **Pentest is a wrapper, not a vendor.** Strix is Apache-2.0 and actively developed; shelling out
+  to its CLI (`lib/pentest.js`) tracks upstream automatically instead of freezing a copy in this repo.
 
 ## Limits
 - Detection covers common ecosystems; unknown stacks fall back to what the human writes in the profile.

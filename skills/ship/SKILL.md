@@ -16,6 +16,8 @@ Shipping is a human decision supported by a checklist. This skill assembles the 
    - Docs, changelog and public API notes updated
    - Config, migrations and feature flags listed with defaults
    - Monitoring/logging for new failure modes
+   - `npx specpilot regression --strict` green (unit + generated Playwright e2e + traceability gates)
+   - For changes to auth, input handling or a new endpoint: `security-pentest` run, findings triaged, Security section present in `verification.md`
 3. **Rollout.** Describe how it reaches users (flag, staged, direct), what to watch, and the explicit rollback trigger and steps. Irreversible changes (data migrations) need a written reversal or a justified "none".
 4. **Org gates and tools.** Read `.sdd/extensions/tools.md` for how to call internal systems, and apply `.sdd/extensions/gates.md` (change tickets, security sign-off, release windows). Report each as satisfied or pending; do not fake or skip.
 5. **PR description** linking the spec, plan, and verification table; list requirements delivered and any deferred ones.

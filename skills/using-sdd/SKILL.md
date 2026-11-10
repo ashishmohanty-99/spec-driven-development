@@ -23,6 +23,8 @@ Spec "Status: approved", no plan?        ──→ plan
 Plan approved, no tasks?                 ──→ tasks
 Tasks approved, work remaining?          ──→ build
 All tasks done?                          ──→ verify, then ship
+Need e2e tests generated from the spec?  ──→ test-automation
+Shipping an auth/input/endpoint change?  ──→ security-pentest
 Code and spec disagree?                  ──→ spec-sync
 Bug fix / one-liner with clear cause?    ──→ skip SDD; still run tests
 ```

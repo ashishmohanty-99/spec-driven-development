@@ -66,22 +66,67 @@ It runs `sdd verify` to prove every REQ is covered. **You** approve.
 (`T-001: …`) → tick the box → `sdd verify`. It stops after each task unless you explicitly say to run several.
 **You check:** the diff stays inside the task's files; tests assert the requirement, not the implementation.
 
-## 8. Verify
+## 8. Generate the regression suite
+**You:** `/sdd-gen-tests login-throttle`
+**Agent:** reads the spec's acceptance scenarios and writes `tests/e2e/login-throttle.spec.js`, one
+Playwright test per requirement, named `REQ-001: …` so it counts as that requirement's test.
+**You:** once per project, fill in `tests/support/ui-connector.js` with real selectors (and
+`.sdd/extensions/ui-login.js` if scenarios need to start logged in) — see "UI connectors" below.
+
+## 9. Verify
 **You:** `/sdd-verify login-throttle`
-**Agent:** `sdd verify --strict`, full test/lint/typecheck, `verification.md` (REQ → test evidence),
-an independent `spec-reviewer` pass on correctness, readability, architecture, security, performance.
+**Agent:** `npx specpilot regression --strict` (unit tests + the Playwright suite + traceability
+gates), `verification.md` (REQ → test evidence), an independent `spec-reviewer` pass on
+correctness, readability, architecture, security, performance. For changes to auth, input handling
+or a new endpoint, also runs `/sdd-pentest` (see "Penetration testing" below).
 **You:** decide on findings.
 
-## 9. Ship
+## 10. Ship
 **You:** `/sdd-ship login-throttle`
 **Agent:** definition-of-done evidence, rollout and rollback plan, your org's extra gates, PR text.
 **You:** merge and deploy. The agent will not.
+
+## UI connectors
+Generated Playwright tests never guess at your markup. They call three functions in
+`tests/support/ui-connector.js` — `ui(page, given)`, `act(page, when)`, `expect(page, then)` — with
+the plain-English scenario text, so you can see exactly which line of the spec you're implementing
+a selector for. First time in a project:
+```bash
+npm i -D @playwright/test
+npx playwright install chromium
+```
+Then edit `ui-connector.js`'s `act`/`expect` for each scenario. If a scenario's Given mentions
+"logged in" or "authenticated", copy `.sdd/extensions/ui-login.example.js` to
+`.sdd/extensions/ui-login.js` and implement `login(page, baseURL)` once — every such scenario calls
+it automatically. Read credentials from env vars (`SDD_UI_USER`, `SDD_UI_PASS` or your own names);
+never commit them. Set `SDD_BASE_URL` to point tests at a local, staging, or preview environment.
+
+## Penetration testing
+`npx specpilot pentest --target <path|url>` wraps the open-source
+[Strix](https://github.com/usestrix/strix) AI pentesting agent — SpecPilot does not bundle its code,
+only invokes its CLI consistently. One-time setup:
+```bash
+curl -sSL https://strix.ai/install | bash
+export STRIX_LLM="openrouter/z-ai/glm-5.3"   # or another supported provider, see docs.strix.ai
+export LLM_API_KEY="..."
+```
+Docker must be running. Then:
+```bash
+npx specpilot pentest --target ./app --fail-on high            # source
+npx specpilot pentest --target https://staging.example.com --fail-on high   # deployed app
+```
+**Only scan systems you own or have explicit written permission to test.** Without Strix installed
+or without credentials, the command prints how to fix that and exits 0 — a **skip**, not a pass;
+`ship` must not treat a skipped scan as evidence.
 
 ## Day-to-day commands
 | Command | Use |
 |---|---|
 | `npx specpilot status` | phase and progress of every feature |
 | `npx specpilot verify [feature] [--strict]` | gate check; exit code 1 on errors (use in CI) |
+| `npx specpilot gen-tests <feature>` | generate/refresh the Playwright suite from the spec |
+| `npx specpilot regression [--strict] [--pentest <target>]` | unit + e2e + gates (+ optional pentest), one exit code |
+| `npx specpilot pentest --target <path\|url>` | Strix security scan |
 | `npx specpilot new <name>` | create a spec skeleton |
 | `npx specpilot scan` | refresh the codebase profile |
 | `npx specpilot doctor` | installation health |
@@ -98,10 +143,14 @@ behaviour. It writes observed-behaviour requirements and characterization tests 
 
 ## Run the gates in CI
 ```yaml
-- run: npx specpilot verify --strict
+- run: npx specpilot regression --strict
 ```
-Fails the build on uncovered requirements, orphan tasks, placeholders, open questions, or built
-requirements without a REQ-named test.
+Runs the project's own test script, the generated Playwright suite (if `playwright.config.js` is
+present), and `sdd verify --strict` for every feature, failing the build on uncovered requirements,
+orphan tasks, placeholders, open questions, or built requirements without a REQ-named test. Add
+`--pentest <target>` to include a Strix scan in the same check once credentials are configured as
+CI secrets (see [Strix's CI/CD docs](https://docs.strix.ai/integrations/ci-cd) for provider-specific
+snippets). Prefer `npx specpilot verify --strict` alone only where no e2e suite or pentest is set up yet.
 
 ## Troubleshooting
 | Symptom | Fix |
@@ -112,6 +161,9 @@ requirements without a REQ-named test.
 | Requirement not detected | Definitions need the colon form `- REQ-001: …`; scenarios use `REQ-001 —`. |
 | Agent ignores the process | Confirm `CLAUDE.md`/`AGENTS.md` has the SpecPilot block and `npx specpilot doctor` passes. |
 | Profile commands wrong | Fix them under "Human-supplied context"; re-scan keeps your edits. |
+| `Cannot find module '@playwright/test'` | Run `npm i -D @playwright/test && npx playwright install chromium` in the project (not in SpecPilot itself). |
+| "Strix is not installed" / STRIX_LLM missing | Expected until you set it up — see "Penetration testing". The run is a skip, not a failure to work around. |
+| Generated test still has `test.fixme` | Add a Given/When/Then acceptance scenario for that REQ in spec.md, then re-run `sdd gen-tests`. |
 
 ## Upgrading
 `npx specpilot init --force` refreshes skills and commands to the latest version. It overwrites
