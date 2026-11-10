@@ -19,7 +19,7 @@ sdd init          # add --agent generic for Codex, Cursor, Copilot, Gemini
 sdd audit
 ```
 
-Python 3.9+. The CLI uses the standard library only.
+Python 3.11+. The CLI uses the standard library only.
 
 ## Use
 

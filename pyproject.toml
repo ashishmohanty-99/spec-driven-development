@@ -7,7 +7,7 @@ name = "specpilot"
 version = "1.0.0"
 description = "Codebase-aware Spec-Driven Development for the AI SDLC: skills, gates, generated regression tests and a guarded pentest step."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 dependencies = []  # the CLI is standard-library only
 

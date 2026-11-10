@@ -1,6 +1,6 @@
 # Getting Started
 
-Time: about 10 minutes. You need Python 3.9+ and an AI coding agent (Claude Code, Codex, Cursor, Copilot, Gemini CLI).
+Time: about 10 minutes. You need Python 3.11+ and an AI coding agent (Claude Code, Codex, Cursor, Copilot, Gemini CLI).
 
 ## 1. Install
 
