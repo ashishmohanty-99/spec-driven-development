@@ -1,0 +1,9 @@
+{
+  "name": "specpilot",
+  "version": "0.1.0",
+  "description": "Codebase-aware Spec-Driven Development for the AI SDLC: discover, constitute, specify, clarify, plan, task, build, verify, ship.",
+  "license": "MIT",
+  "commands": ["./commands"],
+  "skills": "./skills",
+  "agents": ["./agents/spec-reviewer.md", "./agents/codebase-cartographer.md"]
+}
