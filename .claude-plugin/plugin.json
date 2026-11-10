@@ -1,9 +1,9 @@
 {
   "name": "specpilot",
-  "version": "0.2.0",
-  "description": "Codebase-aware Spec-Driven Development for the AI SDLC: discover, constitute, specify, clarify, plan, task, build, verify, ship.",
+  "version": "1.0.0",
+  "description": "Codebase-aware Spec-Driven Development for the AI SDLC: gated phases, traceability, generated regression tests and a guarded pentest step.",
   "license": "MIT",
-  "commands": ["./commands"],
-  "skills": "./skills",
-  "agents": ["./agents/spec-reviewer.md", "./agents/codebase-cartographer.md"]
+  "commands": ["./specpilot/assets/commands"],
+  "skills": "./specpilot/assets/skills",
+  "agents": ["./specpilot/assets/agents/spec-reviewer.md", "./specpilot/assets/agents/codebase-cartographer.md"]
 }

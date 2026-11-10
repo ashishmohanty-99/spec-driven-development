@@ -1,0 +1,1 @@
+SpecPilot · MIT License · [Report a vulnerability](https://github.com/ashishmohanty-99/spec-driven-development/security/advisories/new) · Pages are generated from the `wiki/` folder of the repository; edit them there.
