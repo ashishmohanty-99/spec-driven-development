@@ -1,4 +1,4 @@
-# Spec-Driven Development by ashishmohanty
+# Spec Driven Development By Ashish Mohanty
 
 **Spec-Driven Development for the AI software lifecycle, in any language.** Install it in any repository. It learns the codebase, asks only what it cannot detect, then keeps your AI agent inside a gated process: nothing is built without an approved spec, every requirement is traced to a task and a test, and security is checked before ship.
 

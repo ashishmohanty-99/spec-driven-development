@@ -1,4 +1,4 @@
-# Spec-Driven Development by ashishmohanty
+# Spec Driven Development By Ashish Mohanty
 
 **One skill that takes a team from an idea to a shipped, tested feature, in any language.** It reads your repository, asks only what it cannot work out, sets up a proper project structure if you are starting from nothing, and then guides every step of the lifecycle with a person approving each one.
 
@@ -22,9 +22,9 @@ That is all. The skill carries its own small tool (Python 3.11+, no other depend
 
 | Other route | How |
 |---|---|
-| Claude Code plugin | `/plugin install spec-driven-development-by-ashishmohanty --marketplace ashishmohanty-99/spec-driven-development` |
-| Plugin directory | Submit or install the `plugin/` folder: a documentation-only build with no scripts, which applies the checks by hand ([Manual Mode](skills/spec-driven-development-by-ashishmohanty/references/Manual-Mode.md)) unless you add the tool |
-| By hand | Copy `skills/spec-driven-development-by-ashishmohanty` into your agent's skills folder (for example `~/.claude/skills/`) |
+| Claude Code plugin | `/plugin install spec-driven-development-by-ashish-mohanty --marketplace ashishmohanty-99/spec-driven-development` |
+| Plugin directory | Submit or install the `plugin/` folder: a documentation-only build with no scripts, which applies the checks by hand ([Manual Mode](skills/spec-driven-development-by-ashish-mohanty/references/Manual-Mode.md)) unless you add the tool |
+| By hand | Copy `skills/spec-driven-development-by-ashish-mohanty` into your agent's skills folder (for example `~/.claude/skills/`) |
 | claude.ai | `python tools/build_skill.py`, then upload `dist/sdd-skill.zip` at Customize → Skills |
 | Python package | `pipx install git+https://github.com/ashishmohanty-99/spec-driven-development`, then `sdd init` |
 
@@ -78,7 +78,7 @@ That is all. The skill carries its own small tool (Python 3.11+, no other depend
 sdd lifecycle skip plan --reason "two-person prototype, design agreed in person"
 ```
 
-Writing an approved spec before code is the one step that cannot be switched off. Details: [Lifecycle Options](skills/spec-driven-development-by-ashishmohanty/references/Lifecycle-Options.md).
+Writing an approved spec before code is the one step that cannot be switched off. Details: [Lifecycle Options](skills/spec-driven-development-by-ashish-mohanty/references/Lifecycle-Options.md).
 
 ## Documentation
 
@@ -87,14 +87,14 @@ The [wiki](https://github.com/ashishmohanty-99/spec-driven-development/wiki) is 
 | Page | For |
 |---|---|
 | [Getting Started](wiki/Getting-Started.md) | Install and first feature |
-| [Step-by-Step Workflow](skills/spec-driven-development-by-ashishmohanty/references/Step-by-Step-Workflow.md) | Every phase: who acts, what to check |
-| [Lifecycle Options](skills/spec-driven-development-by-ashishmohanty/references/Lifecycle-Options.md) | Each optional check and what skipping costs |
-| [Project Structure](skills/spec-driven-development-by-ashishmohanty/references/Project-Structure.md) | Folder structures for new applications |
-| [Test Automation](skills/spec-driven-development-by-ashishmohanty/references/Test-Automation.md) | Acceptance tests from specs, in three forms |
-| [Penetration Testing](skills/spec-driven-development-by-ashishmohanty/references/Penetration-Testing.md) | Strix without exposing an API key |
-| [Security Model](skills/spec-driven-development-by-ashishmohanty/references/Security-Model.md) | Threats, controls and their tests |
-| [SDD and the AI SDLC](skills/spec-driven-development-by-ashishmohanty/references/SDD-and-the-AI-SDLC.md) | Why the method exists |
-| [CLI Reference](skills/spec-driven-development-by-ashishmohanty/references/CLI-Reference.md) · [Extending](skills/spec-driven-development-by-ashishmohanty/references/Extending.md) · [Troubleshooting](skills/spec-driven-development-by-ashishmohanty/references/Troubleshooting.md) | Reference |
+| [Step-by-Step Workflow](skills/spec-driven-development-by-ashish-mohanty/references/Step-by-Step-Workflow.md) | Every phase: who acts, what to check |
+| [Lifecycle Options](skills/spec-driven-development-by-ashish-mohanty/references/Lifecycle-Options.md) | Each optional check and what skipping costs |
+| [Project Structure](skills/spec-driven-development-by-ashish-mohanty/references/Project-Structure.md) | Folder structures for new applications |
+| [Test Automation](skills/spec-driven-development-by-ashish-mohanty/references/Test-Automation.md) | Acceptance tests from specs, in three forms |
+| [Penetration Testing](skills/spec-driven-development-by-ashish-mohanty/references/Penetration-Testing.md) | Strix without exposing an API key |
+| [Security Model](skills/spec-driven-development-by-ashish-mohanty/references/Security-Model.md) | Threats, controls and their tests |
+| [SDD and the AI SDLC](skills/spec-driven-development-by-ashish-mohanty/references/SDD-and-the-AI-SDLC.md) | Why the method exists |
+| [CLI Reference](skills/spec-driven-development-by-ashish-mohanty/references/CLI-Reference.md) · [Extending](skills/spec-driven-development-by-ashish-mohanty/references/Extending.md) · [Troubleshooting](skills/spec-driven-development-by-ashish-mohanty/references/Troubleshooting.md) | Reference |
 
 ## Security in one paragraph
 
@@ -104,7 +104,7 @@ No command, config field or prompt accepts an API key. The penetration-test step
 
 | Path | Contents |
 |---|---|
-| `skills/spec-driven-development-by-ashishmohanty/` | **The skill**: `SKILL.md`, the bundled tool under `scripts/`, reference pages under `references/` |
+| `skills/spec-driven-development-by-ashish-mohanty/` | **The skill**: `SKILL.md`, the bundled tool under `scripts/`, reference pages under `references/` |
 | `…/scripts/specpilot/` | Tool source (Python, standard library only) |
 | `…/scripts/specpilot/assets/` | Phase skills, slash commands, subagents, templates and test scaffolding installed into a project |
 | `plugin/` | Documentation-only build for plugin directories, generated by `tools/build_plugin.py` |
@@ -115,7 +115,7 @@ No command, config field or prompt accepts an API key. The penetration-test step
 
 ```bash
 python -m unittest
-pip install ruff bandit && ruff check . && bandit -r skills/spec-driven-development-by-ashishmohanty/scripts/specpilot -c pyproject.toml
+pip install ruff bandit && ruff check . && bandit -r skills/spec-driven-development-by-ashish-mohanty/scripts/specpilot -c pyproject.toml
 ```
 
 ## Credits

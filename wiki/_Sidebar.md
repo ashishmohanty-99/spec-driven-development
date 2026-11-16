@@ -1,4 +1,4 @@
-### Spec-Driven Development by ashishmohanty
+### Spec Driven Development By Ashish Mohanty
 
 **Start here**
 - [Home](Home)

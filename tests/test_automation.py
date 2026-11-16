@@ -9,7 +9,7 @@ from specpilot.security import SecurityError
 from .helpers import feature, sdd, tmp, use_python_e2e, write
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILL = ROOT / "skills" / "spec-driven-development-by-ashishmohanty"
+SKILL = ROOT / "skills" / "spec-driven-development-by-ashish-mohanty"
 ASSETS = SKILL / "scripts" / "specpilot" / "assets"
 SPEC = ("Status: approved\n- REQ-001: a\n- REQ-002: b\n## Acceptance scenarios\n"
         '- REQ-001 — Given the user opens /login, when they click "Sign in", then the page shows "Welcome"\n')
@@ -143,11 +143,11 @@ if __name__ == "__main__":
 
 
 class DistributionTests(unittest.TestCase):
-    """skills/spec-driven-development-by-ashishmohanty/ is the product: it must be a valid skill and work when copied anywhere."""
+    """skills/spec-driven-development-by-ashish-mohanty/ is the product: it must be a valid skill and work when copied anywhere."""
 
     def test_skill_folder_is_a_valid_self_contained_skill(self):
         fm = AssetLintTests.front(SKILL / "SKILL.md")
-        self.assertEqual(fm["name"].strip(), "spec-driven-development-by-ashishmohanty")
+        self.assertEqual(fm["name"].strip(), "spec-driven-development-by-ashish-mohanty")
         self.assertLessEqual(set(fm), {"name", "description", "license", "compatibility", "metadata", "allowed-tools"})
         self.assertLessEqual(len(fm["description"].strip()), 1024)
         text = (SKILL / "SKILL.md").read_text()
@@ -161,7 +161,7 @@ class DistributionTests(unittest.TestCase):
         import subprocess
         import sys
 
-        installed = tmp() / "skills" / "spec-driven-development-by-ashishmohanty"  # what `npx skills add` or an unzip leaves behind
+        installed = tmp() / "skills" / "spec-driven-development-by-ashish-mohanty"  # what `npx skills add` or an unzip leaves behind
         shutil.copytree(SKILL, installed, ignore=shutil.ignore_patterns("__pycache__"))
         project = tmp()
         env = {"PATH": "/usr/bin:/bin"}  # no PYTHONPATH: only the copy is importable
@@ -176,7 +176,7 @@ class DistributionTests(unittest.TestCase):
 
     def test_only_the_entry_skill_is_discoverable_at_the_top_level(self):
         # Installers list skills/<name>/SKILL.md; the phase skills are installed per project by `sdd init`.
-        self.assertEqual([p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")], ["spec-driven-development-by-ashishmohanty"])
+        self.assertEqual([p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")], ["spec-driven-development-by-ashish-mohanty"])
         # The directory build under plugin/ is separate; installers and the upload zip read skills/ only.
         self.assertEqual(len(list((ROOT / "skills").rglob("SKILL.md"))), 1)
 
@@ -190,10 +190,10 @@ class DistributionTests(unittest.TestCase):
         archive = build_skill.build(tmp())
         names = zipfile.ZipFile(archive).namelist()
         for expected in ("SKILL.md", "scripts/sdd.py", "references/Security-Model.md", "scripts/specpilot/cli.py"):
-            self.assertIn("spec-driven-development-by-ashishmohanty/" + expected, names)
+            self.assertIn("spec-driven-development-by-ashish-mohanty/" + expected, names)
         self.assertEqual([n for n in names if n.upper().endswith("SKILL.MD")],
-                         ["spec-driven-development-by-ashishmohanty/SKILL.md"], "upload hosts allow exactly one")
-        self.assertFalse([n for n in names if "__pycache__" in n or not n.startswith("spec-driven-development-by-ashishmohanty/")])
+                         ["spec-driven-development-by-ashish-mohanty/SKILL.md"], "upload hosts allow exactly one")
+        self.assertFalse([n for n in names if "__pycache__" in n or not n.startswith("spec-driven-development-by-ashish-mohanty/")])
         self.assertEqual(archive.read_bytes(), build_skill.build(tmp()).read_bytes())
 
 
@@ -283,7 +283,7 @@ class DirectoryPluginTests(unittest.TestCase):
             self.assertNotIn("LLM_API_KEY", text, path.name)
             self.assertNotRegex(text, r"curl [^\n]*\|\s*(ba)?sh", path.name)
             self.assertNotIn("${{ secrets.", text, path.name)
-        entry = (self.plugin / "skills" / "spec-driven-development-by-ashishmohanty" / "SKILL.md").read_text()
+        entry = (self.plugin / "skills" / "spec-driven-development-by-ashish-mohanty" / "SKILL.md").read_text()
         self.assertNotIn("scripts/", entry)
         self.assertIn("Manual-Mode.md", entry)
 
@@ -295,7 +295,7 @@ class DirectoryPluginTests(unittest.TestCase):
             self.assertLessEqual(len(fm["description"].strip()), 1024)
             names.add(skill.name)
         self.assertEqual(len(names), 16)
-        entry = self.plugin / "skills" / "spec-driven-development-by-ashishmohanty"
+        entry = self.plugin / "skills" / "spec-driven-development-by-ashish-mohanty"
         for ref in re.findall(r"`(references/[\w-]+\.md)`", (entry / "SKILL.md").read_text()):
             self.assertTrue((entry / ref).is_file(), ref)
         manual = (entry / "references" / "Manual-Mode.md").read_text()

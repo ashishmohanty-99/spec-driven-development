@@ -1,4 +1,4 @@
-# Spec-Driven Development by ashishmohanty
+# Spec Driven Development By Ashish Mohanty
 
 One skill that takes a team from an idea to a shipped, tested feature, in any language. It reads your
 repository, asks only what it cannot work out, sets up a proper project structure for new applications,
@@ -8,7 +8,7 @@ person approving each step.
 ## Install
 
 ```
-/plugin install spec-driven-development-by-ashishmohanty --marketplace ashishmohanty-99/spec-driven-development
+/plugin install spec-driven-development-by-ashish-mohanty --marketplace ashishmohanty-99/spec-driven-development
 ```
 
 Then say: **Set up spec-driven development in this repository.**
@@ -18,7 +18,7 @@ Then say: **Set up spec-driven development in this repository.**
 Documentation only: the entry skill, fifteen phase skills, slash commands, two reviewer subagents,
 templates and reference pages. It contains no scripts and reads no credentials.
 
-The checks can be applied by hand (see `skills/spec-driven-development-by-ashishmohanty/references/Manual-Mode.md`) or by an optional
+The checks can be applied by hand (see `skills/spec-driven-development-by-ashish-mohanty/references/Manual-Mode.md`) or by an optional
 open-source command-line tool that a person may choose to install from the project's repository:
 https://github.com/ashishmohanty-99/spec-driven-development
 

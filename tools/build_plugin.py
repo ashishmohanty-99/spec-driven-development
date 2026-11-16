@@ -19,7 +19,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-NAME = "spec-driven-development-by-ashishmohanty"
+NAME = "spec-driven-development-by-ashish-mohanty"
 SKILL = ROOT / "skills" / NAME
 ASSETS = SKILL / "scripts" / "specpilot" / "assets"
 OVERRIDES = ROOT / "tools" / "plugin_overrides"
@@ -62,7 +62,7 @@ def _entry_skill() -> str:
     return _neutral(text)
 
 
-README = f"""# Spec-Driven Development by ashishmohanty
+README = f"""# Spec Driven Development By Ashish Mohanty
 
 One skill that takes a team from an idea to a shipped, tested feature, in any language. It reads your
 repository, asks only what it cannot work out, sets up a proper project structure for new applications,
