@@ -1,10 +1,10 @@
 ---
-name: spec-driven-development-by-ashishmohanty
+name: spec-driven-development-by-ashish-mohanty
 description: Sets up and runs Spec-Driven Development (SDD) for the whole AI software lifecycle in any repository and any programming language. It reads the codebase, asks only what it cannot detect, scaffolds a proper project structure for new applications, then guides specs, plans, tasks, test-first builds, generated acceptance tests, security checks and shipping, with a human approving each step. Use when someone wants to adopt spec-driven development, start a new application properly, write a spec or plan before coding, generate tests from requirements, check that code traces back to an approved spec, or asks "what should I do next" in a repository that has a .sdd folder.
 license: MIT
 ---
 
-# Spec-Driven Development by ashishmohanty
+# Spec Driven Development By Ashish Mohanty
 
 ## Overview
 This skill turns an idea into a shipped, tested feature through a guided lifecycle, in any language and any stack. A person decides *what* gets built and approves each step; you do the work in between; a small bundled tool (`sdd`) checks what a machine can check. Nothing needs to be installed beyond Python 3.11+ to run the tool.
@@ -16,27 +16,25 @@ understand the repo → set up → specify → clarify → plan → tasks → bu
 Your manner matters as much as the method: be brief, say what you found in plain words, ask one question at a time with a recommended answer, and always end by telling the person the single next thing to do.
 
 ## The tool
-A small command-line tool, `sdd`, automates the checks. Call it `SDD` below. Use the first that applies:
+Call it `SDD` below. Use the first that applies:
 
 1. In a repository that already has it: `python3 .sdd/bin/sdd.py`
 2. If `sdd --version` works: `sdd`
-3. Neither: **manual mode**. Do each command's job by hand, exactly as `references/Manual-Mode.md` describes. The files and formats are identical, so nothing is lost if the team adds the tool later.
+3. The copy bundled with this skill: `python3 "${CLAUDE_SKILL_DIR}/scripts/sdd.py"` (if that variable appears literally, use the folder that contains this SKILL.md)
 
-This plugin carries documentation only. Tell the person once that the optional tool is open source in this skill's repository (linked from the plugin's README) and that installing it is their decision. Never install it yourself.
-
-**When in doubt, run `SDD next`** (or, in manual mode, read each feature's files and apply the phase table in `references/Manual-Mode.md`).
+**When in doubt, run `SDD next`.** It prints the next action for the repository and for every feature.
 
 ## First time in a repository
 1. **Set up.** From the repository root: `SDD init --vendor` (add `--agent generic` for agents other than Claude Code). It reads file names and manifests only (never secret files), detects languages, frameworks, test tools and CI, installs the phase skills and commands into the project, prepares the acceptance-test folder in the form that fits the stack, and copies the tool to `.sdd/bin/` so teammates and CI need nothing installed.
 2. **Tell the person what you found** in three or four plain lines, from the command's output.
 3. **Ask only what is missing.** Run `SDD questions --json` and ask each open question one at a time, recommended option first. Record every answer with `SDD answer <id> "<value>"`. A person who says "use the defaults" gets the recommended answers.
 4. **Offer the lifecycle choice honestly.** All checks are on by default and you recommend keeping them. A person may switch any optional check off. Before you do it, state what skipping costs (shown by `SDD lifecycle`), ask for a one-line reason, then run `SDD lifecycle skip <check> --reason "<reason>"`. Never switch a check off on your own initiative.
-5. **New, empty repository?** Create a proper project structure first: use the `project-scaffold` skill and `references/Project-Structure.md`. Propose the folder tree, wait for approval, generate it with the stack's official tooling, and prove that build, lint and one test pass.
+5. **New, empty repository?** Create a proper project structure first: follow `scripts/specpilot/assets/skills/project-scaffold/PHASE.md` and `references/Project-Structure.md`. Propose the folder tree, wait for approval, generate it with the stack's official tooling, and prove that build, lint and one test pass.
 6. **Finish with one screen:** what is set up, which checks are on or off, and the next action from `SDD next`. Then stop. Do not start a feature in the same turn.
 
 ## Every time after that
 1. Run `SDD next`.
-2. Read the installed skill for that phase (`.claude/skills/<name>/SKILL.md` or `.agents/skills/<name>/SKILL.md`; start with `using-sdd`). In this plugin the same phase skills are installed alongside this one.
+2. Read the installed skill for that phase (`.claude/skills/<name>/SKILL.md` or `.agents/skills/<name>/SKILL.md`; start with `using-sdd`). If they are not installed, the same text is in `scripts/specpilot/assets/skills/<name>/PHASE.md` inside this skill.
 3. Do that one phase, save its artifact, and stop for the person.
 
 | Situation | Skill | The person |

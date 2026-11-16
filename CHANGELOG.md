@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.0
+
+### Changed
+- The skill and plugin are now named **spec-driven-development-by-ashish-mohanty**, shown in listings as "Spec Driven Development By Ashish Mohanty". Anyone who installed or uploaded it under the previous name should remove that copy and install this one.
+- New icon: a spec sheet with ticked requirements and an approval badge (`tools/make_icon.py` redraws it).
+
 ## 2.1.0
 
 ### Added
@@ -17,7 +23,7 @@
 ## 2.0.0
 
 ### Changed
-- The skill is now named **spec-driven-development-by-ashishmohanty** (folder `skills/spec-driven-development-by-ashishmohanty/`). The `sdd` command and the Python package name are unchanged.
+- The skill is now named **spec-driven-development-by-ashish-mohanty** (folder `skills/spec-driven-development-by-ashish-mohanty/`). The `sdd` command and the Python package name are unchanged.
 - An empty repository now defaults to Gherkin acceptance tests instead of Python.
 
 ### Added
@@ -35,9 +41,9 @@
 ## 1.2.0
 
 ### Changed
-- The repository is now directly installable as a skill: `npx skills add ashishmohanty-99/spec-driven-development`. The complete skill (entry `SKILL.md`, bundled CLI, reference pages) is committed at `skills/spec-driven-development-by-ashishmohanty/`, so no release or build step is needed to share it.
-- The Python package source moved to `skills/spec-driven-development-by-ashishmohanty/scripts/specpilot/`; `pip install` and the `sdd` command are unchanged.
-- Reference pages moved from `wiki/` to `skills/spec-driven-development-by-ashishmohanty/references/`; the wiki is published from both.
+- The repository is now directly installable as a skill: `npx skills add ashishmohanty-99/spec-driven-development`. The complete skill (entry `SKILL.md`, bundled CLI, reference pages) is committed at `skills/spec-driven-development-by-ashish-mohanty/`, so no release or build step is needed to share it.
+- The Python package source moved to `skills/spec-driven-development-by-ashish-mohanty/scripts/specpilot/`; `pip install` and the `sdd` command are unchanged.
+- Reference pages moved from `wiki/` to `skills/spec-driven-development-by-ashish-mohanty/references/`; the wiki is published from both.
 - `tools/build_skill.py` now only zips the skill folder for upload-only hosts.
 
 ## 1.1.0
