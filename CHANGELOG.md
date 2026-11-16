@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1
+
+### Fixed
+- The skill bundle now contains exactly one `SKILL.md`, as upload hosts (claude.ai → Customize → Skills) require. The phase skills it installs into projects are stored inside the bundle as `PHASE.md` and written out as `SKILL.md` by `sdd init`.
+
 ## 2.0.0
 
 ### Changed

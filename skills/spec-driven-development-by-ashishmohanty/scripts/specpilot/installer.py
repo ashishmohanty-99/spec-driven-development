@@ -18,13 +18,21 @@ GITIGNORE_RULES = [".env", ".env.*", "!.env.example", "strix_runs/", "*.pem", "*
                    "playwright-report/", "test-results/"]
 
 
-def copy_tree(root: Path, src: Path, dest_rel: str, force: bool) -> int:
+# Inside the bundle, phase skills are stored as PHASE.md so the bundle holds exactly one SKILL.md
+# (upload hosts require that). They become SKILL.md when installed into a project.
+BUNDLED_SKILL, INSTALLED_SKILL = "PHASE.md", "SKILL.md"
+
+
+def copy_tree(root: Path, src: Path, dest_rel: str, force: bool, rename: dict | None = None) -> int:
     """Copy packaged assets into the project. Existing files are kept unless force is set."""
     written = 0
     for item in sorted(src.rglob("*")):
         if not item.is_file() or "__pycache__" in item.parts:
             continue
-        target = Path(root) / dest_rel / item.relative_to(src)
+        rel = item.relative_to(src)
+        if rename and rel.name in rename:
+            rel = rel.with_name(rename[rel.name])
+        target = Path(root) / dest_rel / rel
         if target.exists() and not force:
             continue
         if force and read_text(target) == item.read_text(encoding="utf-8"):
@@ -166,7 +174,7 @@ def init(root: Path, agent: str = "claude", force: bool = False, vendor: bool = 
     copy_tree(root, ASSETS / "templates", ".sdd/templates", force)
     copy_tree(root, ASSETS / "extensions", ".sdd/extensions", force=False)
 
-    n = copy_tree(root, ASSETS / "skills", target["skills"], force)
+    n = copy_tree(root, ASSETS / "skills", target["skills"], force, {BUNDLED_SKILL: INSTALLED_SKILL})
     log.append(f"installed skills -> {target['skills']} ({n} files written)")
     if target["commands"]:
         copy_tree(root, ASSETS / "commands", target["commands"], force)

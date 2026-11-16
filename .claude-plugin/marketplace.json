@@ -1,14 +1,21 @@
 {
   "name": "ashishmohanty",
-  "owner": { "name": "ashishmohanty-99" },
+  "owner": {
+    "name": "ashishmohanty-99"
+  },
   "plugins": [
     {
       "name": "spec-driven-development-by-ashishmohanty",
       "source": "./",
-      "version": "2.0.0",
-      "description": "Codebase-aware Spec-Driven Development kit: skills, commands and reviewer subagents.",
+      "version": "2.0.1",
+      "description": "Spec-Driven Development for the whole AI software lifecycle, in any language: guided setup, approved specs, traceable tasks, generated acceptance tests, security checks and a human approval at each step.",
       "license": "MIT",
-      "keywords": ["sdd", "spec-driven-development", "agents", "skills"]
+      "keywords": [
+        "sdd",
+        "spec-driven-development",
+        "agents",
+        "skills"
+      ]
     }
   ]
 }
