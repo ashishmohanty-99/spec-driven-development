@@ -268,6 +268,7 @@ class DirectoryPluginTests(unittest.TestCase):
         manifest = json.loads((self.plugin / ".claude-plugin" / "plugin.json").read_text())
         for field in ("name", "version", "description", "author", "license", "icon"):
             self.assertTrue(manifest.get(field), field)
+        self.assertNotIn("http", json.dumps(manifest), "no remote address anywhere in the directory build")
         self.assertRegex(manifest["name"], r"^[a-z0-9]+(-[a-z0-9]+)*$")
         png = (self.plugin / ".claude-plugin" / "icon.png").read_bytes()
         self.assertEqual(png[:8], b"\x89PNG\r\n\x1a\n")
