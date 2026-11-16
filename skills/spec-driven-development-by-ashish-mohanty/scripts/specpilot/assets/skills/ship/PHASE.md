@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Final readiness gate before merge or release: definition of done, documentation, rollout and rollback plan, and closing the spec loop. Use after verify passes and the human wants to merge, release or deploy.
+description: "Final readiness gate before merge or release: definition of done, documentation, rollout and rollback plan, and closing the spec loop. Use after verify passes and the human wants to merge, release or deploy."
 ---
 
 # Ship

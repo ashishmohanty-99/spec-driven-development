@@ -1,6 +1,6 @@
 ---
 name: test-automation
-description: Generates and maintains acceptance tests from a spec's Given/When/Then scenarios in the form the project's stack can run - Playwright with Python, Playwright with TypeScript, or language-neutral Gherkin feature files - with one traceable test per requirement. Use when a spec has acceptance scenarios and needs end-to-end coverage, when a spec changed and its tests must be regenerated, or when a scenario step has no implementation yet.
+description: "Generates and maintains acceptance tests from a spec's Given/When/Then scenarios in the form the project's stack can run - Playwright with Python, Playwright with TypeScript, or language-neutral Gherkin feature files - with one traceable test per requirement. Use when a spec has acceptance scenarios and needs end-to-end coverage, when a spec changed and its tests must be regenerated, or when a scenario step has no implementation yet."
 ---
 
 # Test Automation

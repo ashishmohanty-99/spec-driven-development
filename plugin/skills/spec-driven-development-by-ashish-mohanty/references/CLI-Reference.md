@@ -80,7 +80,7 @@ sdd [--dir PATH] <command> [options]
 | Variable | Used by | Purpose |
 |---|---|---|
 | `SDD_BASE_URL` | e2e tests | App under test (default `http://localhost:3000`) |
-| `SDD_UI_USER`, `SDD_UI_PASS` | your `ui_login.py` | Test account |
+| test-account variables (your own names) | your login helper | Test account |
 | `SDD_E2E_STRICT=1` | e2e tests | Coverage gaps fail instead of skip (set by `--strict`) |
 | `STRIX_LLM`, `LLM_API_BASE` | Strix | Model and endpoint |
 | the model key | Strix | Hosted-model key. Never needed with a local model |

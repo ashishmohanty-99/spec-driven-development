@@ -1,5 +1,5 @@
 ---
-description: Resolve open questions in a spec: /sdd-clarify <feature>
+description: "Resolve open questions in a spec: /sdd-clarify <feature>"
 ---
 
 Invoke the `clarify` skill for feature: $ARGUMENTS

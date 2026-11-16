@@ -1,6 +1,6 @@
 ---
 name: constitution
-description: Drafts and amends the project constitution, the short set of checkable rules every spec, plan and change must obey, derived from the codebase profile. Use after discovery, when onboarding a repo to SDD, or when a rule is repeatedly violated or obsolete.
+description: "Drafts and amends the project constitution, the short set of checkable rules every spec, plan and change must obey, derived from the codebase profile. Use after discovery, when onboarding a repo to SDD, or when a rule is repeatedly violated or obsolete."
 ---
 
 # Constitution

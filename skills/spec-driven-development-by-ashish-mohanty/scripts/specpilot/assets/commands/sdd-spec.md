@@ -1,5 +1,5 @@
 ---
-description: Write a spec for a feature or change: /sdd-spec <idea>
+description: "Write a spec for a feature or change: /sdd-spec <idea>"
 ---
 
 Invoke the `specify` skill for: $ARGUMENTS

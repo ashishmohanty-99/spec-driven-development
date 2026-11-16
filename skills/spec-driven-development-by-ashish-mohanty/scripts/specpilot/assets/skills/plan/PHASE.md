@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Produces a technical plan from an approved spec by mapping each requirement to concrete code touch points, interfaces, risks and a verification strategy. Use when spec.md is Status approved and no plan.md exists.
+description: "Produces a technical plan from an approved spec by mapping each requirement to concrete code touch points, interfaces, risks and a verification strategy. Use when spec.md is Status approved and no plan.md exists."
 ---
 
 # Plan

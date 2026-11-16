@@ -1,5 +1,5 @@
 ---
-description: Profile this codebase and confirm the SDD setup
+description: "Profile this codebase and confirm the SDD setup"
 ---
 
 Invoke the `using-sdd` and `codebase-discovery` skills.

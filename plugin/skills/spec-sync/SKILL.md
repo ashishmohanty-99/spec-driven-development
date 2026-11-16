@@ -1,6 +1,6 @@
 ---
 name: spec-sync
-description: Detects and resolves drift between specs and code so the spec stays the source of truth, including reverse-documenting behaviour for legacy code with no spec. Use when implementation diverges from the spec, requirements change mid-build, or an existing feature needs a baseline spec.
+description: "Detects and resolves drift between specs and code so the spec stays the source of truth, including reverse-documenting behaviour for legacy code with no spec. Use when implementation diverges from the spec, requirements change mid-build, or an existing feature needs a baseline spec."
 ---
 
 # Spec Sync
