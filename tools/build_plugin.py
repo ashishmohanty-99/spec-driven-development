@@ -51,6 +51,8 @@ REWORDINGS = [
     ("Read from env by Strix only.", "Strix reads it from the person's own shell."),
     ("a non-local `http://` API base", "an unencrypted remote API address"),
     ("`AWS_*`, tokens and the rest are dropped", "cloud keys, tokens and the rest are dropped"),
+    ("refer to a throwaway test account or to environment variables.",
+     "refer to a throwaway test account that exists only in the test environment."),
     ("Use an `https://` API base", "Use an encrypted (https) API address"),
     ("ENV -->|env vars only| CLI", "ENV -->|settings only| CLI"),
     ("CLI -->|no shell, minimal env| APP", "CLI -->|no shell, minimal environment| APP"),
