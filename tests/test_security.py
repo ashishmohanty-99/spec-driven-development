@@ -166,7 +166,7 @@ class SecretTests(unittest.TestCase):
         write(r, ".sdd/config.json", '{"pentest": {"apiKey": "x"}}')
         write(r, ".github/workflows/x.yml", "on: pull_request_target\nenv:\n  K: ${{ secrets.LLM_API_KEY }}")
         messages = "\n".join(m for _, m in audit(r)["findings"])
-        self.assertIn("config.json mentions a credential", messages)
+        self.assertIn("credential-like field", messages)
         self.assertIn("pull_request_target", messages)
 
 

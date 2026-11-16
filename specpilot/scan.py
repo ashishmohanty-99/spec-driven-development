@@ -37,11 +37,21 @@ MAX_FILES = 5000
 MAX_DEPTH = 6
 
 
-def walk(root: Path) -> list[str]:
-    """Bounded walk returning repo-relative POSIX paths. Never follows symlinks."""
+SCAFFOLD = {"ui_connector.py", "conftest.py"}  # SpecPilot's own e2e scaffolding, not project code
+
+
+def walk(root: Path, sub: str = "") -> list[str]:
+    """Bounded walk returning repo-relative POSIX paths. Never follows symlinks.
+
+    `sub` restricts the walk to one subdirectory, so callers that need a specific area (tests,
+    SDD artifacts) are not affected by the file cap in a very large repository.
+    """
     root = Path(root)
+    start = root / sub if sub else root
+    if sub and (start.is_symlink() or not start.is_dir()):
+        return []
     files: list[str] = []
-    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+    for dirpath, dirnames, filenames in os.walk(start, followlinks=False):
         rel_dir = os.path.relpath(dirpath, root)
         depth = 0 if rel_dir == "." else rel_dir.count(os.sep) + 1
         dirnames[:] = sorted(
@@ -57,6 +67,10 @@ def walk(root: Path) -> list[str]:
             if len(files) >= MAX_FILES:
                 return files
     return files
+
+
+def _inert(text: str, limit: int = 80) -> str:
+    return one_line(text, limit).replace("`", "'").replace("<", "(").replace(">", ")")
 
 
 def _json(path: Path) -> dict:
@@ -76,7 +90,7 @@ def scan(root: Path) -> dict:
     fileset = set(files)
     has = fileset.__contains__
     p: dict = {
-        "name": one_line(root.name, 80) or "project", "fileCount": len(files), "languages": [],
+        "name": _inert(root.name) or "project", "fileCount": len(files), "languages": [],
         "frameworks": [], "testTools": [], "qualityTools": [], "packageManagers": [],
         "commands": {}, "ci": [], "docs": [], "topDirs": [], "monorepo": None,
         "testFileCount": 0, "sensitiveFiles": [], "agentFiles": [], "notes": [],
@@ -84,12 +98,16 @@ def scan(root: Path) -> dict:
     cmds: dict = p["commands"]
 
     counts: dict = {}
-    for f in files:
+    own = [f for f in files if f.rsplit("/", 1)[-1] in SCAFFOLD and "/e2e/" in f"/{f}"]
+    # SpecPilot's scaffolding and vendored CLI are not project code.
+    files_for_stats = [f for f in files if f not in own and not f.startswith(".sdd/bin/")]
+    for f in files_for_stats:
         lang = LANGS.get(os.path.splitext(f)[1])
         if lang:
             counts[lang] = counts.get(lang, 0) + 1
     p["languages"] = [{"name": k, "files": v} for k, v in sorted(counts.items(), key=lambda kv: -kv[1])]
-    p["topDirs"] = sorted({f.split("/")[0] for f in files if "/" in f})
+    # Names are untrusted text that ends up in a file agents read: keep them to one inert line.
+    p["topDirs"] = sorted({_inert(f.split("/")[0]) for f in files if "/" in f})
 
     # Python
     py_text = "\n".join(
@@ -103,7 +121,7 @@ def scan(root: Path) -> dict:
         )
         for table, dest in ((PY_FRAMEWORKS, "frameworks"), (PY_TEST, "testTools"), (PY_QUALITY, "qualityTools")):
             for key, label in table.items():
-                if re.search(rf"(^|[^a-z0-9_-]){re.escape(key)}([^a-z0-9_-]|$)", py_text):
+                if re.search(rf"(^|[^a-z0-9_]){re.escape(key)}([^a-z0-9_]|$)", py_text):
                     p[dest].append(label)
         if "pytest" in p["testTools"]:
             cmds.setdefault("test", "pytest")
@@ -115,7 +133,10 @@ def scan(root: Path) -> dict:
     # JavaScript / TypeScript
     pkg = _json(root / "package.json")
     if pkg:
-        deps = {**(pkg.get("dependencies") or {}), **(pkg.get("devDependencies") or {})}
+        deps = {}
+        for section in ("dependencies", "devDependencies"):
+            if isinstance(pkg.get(section), dict):
+                deps.update(pkg[section])
         p["frameworks"] += [d for d in JS_FRAMEWORKS if d in deps]
         p["testTools"] += [d for d in JS_TEST if d in deps]
         p["qualityTools"] += [d for d in JS_QUALITY if d in deps]
@@ -180,8 +201,8 @@ def scan(root: Path) -> dict:
         p["docs"].append("ADR directory")
     p["agentFiles"] = [f for f in ("AGENTS.md", "CLAUDE.md", ".cursorrules", ".github/copilot-instructions.md", "GEMINI.md") if has(f)]
 
-    p["testFileCount"] = sum(1 for f in files if TEST_FILE.search(f) and not f.startswith(".sdd/"))
-    p["sensitiveFiles"] = [one_line(f, 200) for f in files if is_sensitive(f)]
+    p["testFileCount"] = sum(1 for f in files_for_stats if TEST_FILE.search(f) and not f.startswith(".sdd/"))
+    p["sensitiveFiles"] = [_inert(f, 200) for f in files if is_sensitive(f)]
 
     for key in ("frameworks", "testTools", "qualityTools", "packageManagers", "ci", "docs"):
         p[key] = list(dict.fromkeys(p[key]))

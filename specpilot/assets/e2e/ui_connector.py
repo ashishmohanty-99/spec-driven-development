@@ -54,9 +54,23 @@ def missing(reason: str) -> None:
     pytest.skip(reason)
 
 
+_AND = re.compile(r"\s+and\s+(?=(?:the|a|an|they|user|I)\b)", re.IGNORECASE)
+
+
+def split_actions(text: str) -> list:
+    """Split 'do X and they do Y' into steps, ignoring any 'and' inside double quotes."""
+    parts, start = [], 0
+    for match in _AND.finditer(text):
+        if text.count('"', 0, match.start()) % 2 == 0:  # an even number of quotes means we are outside them
+            parts.append(text[start:match.start()])
+            start = match.end()
+    parts.append(text[start:])
+    return [p.strip() for p in parts if p.strip()]
+
+
 def run_step(page, phrase: str) -> None:
     text = phrase.strip().rstrip(".")
-    for part in re.split(r"\s+and\s+(?=(?:the|a|an|they|user|I)\b)", text, flags=re.IGNORECASE):
+    for part in split_actions(text):
         for pattern, fn in _STEPS:
             match = pattern.fullmatch(part.strip())
             if match:

@@ -37,7 +37,8 @@ One Given/When/Then per requirement that is not obvious from its EARS text. Refe
 - **Never:**
 
 ## 8. Open questions
-Mark every unresolved assumption inline with `[NEEDS CLARIFICATION: question]`. Approval is blocked while any remain.
+Mark every unresolved assumption inline, where it occurs, with a clarification marker. Approval is blocked while any remain.
+<!-- Marker format: [NEEDS CLARIFICATION: your question] -->
 
 ## 9. Decision log
 | Date | Decision | Reason |

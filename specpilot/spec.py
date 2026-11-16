@@ -6,7 +6,17 @@ import re
 from pathlib import Path
 
 from .scan import TEST_FILE, walk
-from .security import SecurityError, read_text, safe_join, scan_text_for_secrets, validate_feature, write_text
+from .security import (
+    FEATURE_RE,
+    SecurityError,
+    is_sensitive,
+    one_line,
+    read_text,
+    safe_join,
+    scan_text_for_secrets,
+    validate_feature,
+    write_text,
+)
 
 ASSETS = Path(__file__).parent / "assets"
 REQ_ID = r"REQ-[A-Z0-9]+(?:-\d+)?"
@@ -20,26 +30,54 @@ PLACEHOLDER = re.compile(r"…|<[^>]+>|\bTBD\b|\.\.\.")
 DEFAULT_CONFIG = {
     "version": 1, "specsDir": ".sdd/specs", "e2eDir": "tests/e2e", "strict": False,
     "requireTestsPerRequirement": True,
-    "commands": {"test": None, "e2e": "pytest tests/e2e"},
+    "commands": {"test": None, "e2e": None},  # e2e None means: pytest <e2eDir>
+    "envPassthrough": [],
     "pentest": {"allowedTargets": [], "failOn": "high", "scanMode": "quick"},
 }
 
 
+def _str_list(value, key: str) -> list:
+    if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
+        raise SecurityError(f'.sdd/config.json: "{key}" must be a list of strings')
+    return value
+
+
 def load_config(root: Path) -> dict:
+    """Read .sdd/config.json. A config that exists but cannot be trusted is an error, never ignored:
+    silently falling back to defaults would switch off settings such as "strict"."""
     cfg = json.loads(json.dumps(DEFAULT_CONFIG))
-    text = read_text(Path(root) / ".sdd" / "config.json")
-    if text:
-        try:
-            user = json.loads(text)
-        except ValueError:
-            user = {}
-        if isinstance(user, dict):
-            for key, value in user.items():
-                if isinstance(value, dict) and isinstance(cfg.get(key), dict):
-                    cfg[key].update(value)
-                else:
-                    cfg[key] = value
+    path = Path(root) / ".sdd" / "config.json"
+    if not path.exists() and not path.is_symlink():
+        return cfg
+    text = read_text(path)
+    if text is None:
+        raise SecurityError(".sdd/config.json is unreadable (symlink, too large, or not a regular file)")
+    try:
+        user = json.loads(text)
+    except ValueError as exc:
+        raise SecurityError(f".sdd/config.json is not valid JSON: {exc}") from exc
+    if not isinstance(user, dict):
+        raise SecurityError(".sdd/config.json must contain a JSON object")
+    for key, value in user.items():
+        if isinstance(cfg.get(key), dict):
+            if not isinstance(value, dict):
+                raise SecurityError(f'.sdd/config.json: "{key}" must be an object')
+            cfg[key].update(value)
+        else:
+            cfg[key] = value
+    for key in ("specsDir", "e2eDir"):
+        if not isinstance(cfg[key], str) or not cfg[key].strip():
+            raise SecurityError(f'.sdd/config.json: "{key}" must be a non-empty string')
+    for name, command in cfg["commands"].items():
+        if command is not None and not isinstance(command, str):
+            raise SecurityError(f'.sdd/config.json: "commands.{name}" must be a string or null')
+    _str_list(cfg["envPassthrough"], "envPassthrough")
+    _str_list(cfg["pentest"].get("allowedTargets", []), "pentest.allowedTargets")
     return cfg
+
+
+def e2e_dir(root: Path) -> Path:
+    return safe_join(root, load_config(root)["e2eDir"])
 
 
 def specs_dir(root: Path) -> Path:
@@ -50,12 +88,20 @@ def feature_dir(root: Path, feature: str) -> Path:
     return safe_join(specs_dir(root), validate_feature(feature))
 
 
-def list_features(root: Path) -> list[str]:
+def _feature_entries(root: Path) -> list[Path]:
     d = specs_dir(root)
-    if not d.is_dir():
-        return []
-    return sorted(e.name for e in d.iterdir() if e.is_dir() and not e.is_symlink()
-                  and re.match(r"^[a-z0-9][a-z0-9-]{0,63}$", e.name))
+    if d.exists() and not d.is_dir():
+        raise SecurityError(f"{d.name} exists but is not a directory")
+    return sorted(e for e in d.iterdir() if e.is_dir()) if d.is_dir() else []
+
+
+def list_features(root: Path) -> list[str]:
+    return [e.name for e in _feature_entries(root) if not e.is_symlink() and FEATURE_RE.match(e.name)]
+
+
+def invalid_feature_dirs(root: Path) -> list[str]:
+    """Directories under the specs folder that the gates cannot address. They are errors, not ignored."""
+    return [one_line(e.name, 60) for e in _feature_entries(root) if e.is_symlink() or not FEATURE_RE.match(e.name)]
 
 
 def new_feature(root: Path, feature: str) -> Path:
@@ -81,9 +127,12 @@ def parse_spec(text: str) -> dict:
         if m:
             reqs.append(m.group(1))
             titles.setdefault(m.group(1), m.group(2).strip())
-            if PLACEHOLDER.search(line):
+            if PLACEHOLDER.search(line) or not m.group(2).strip():
                 placeholders.append(m.group(1))
-    status = re.search(r"^\s*(?:\*\*)?Status(?:\*\*)?\s*:\s*(?:\*\*)?\s*(\w+)", clean, flags=re.IGNORECASE | re.MULTILINE)
+    # The status word must stand alone on its line: "approved-pending-review" is not approved.
+    status = re.search(
+        r"^[ \t]*(?:\*\*)?Status(?:\*\*)?[ \t]*:[ \t]*(?:\*\*)?[ \t]*(\w+)[ \t]*(?:\*\*)?[ \t]*\r?$",
+        clean, flags=re.IGNORECASE | re.MULTILINE)
     return {
         "reqs": reqs, "titles": titles, "placeholders": placeholders,
         "open": re.findall(r"\[NEEDS CLARIFICATION[^\]]*\]", clean),
@@ -117,18 +166,55 @@ def parse_scenarios(text: str) -> list[dict]:
     return out
 
 
+# A generated test for a requirement that has no scenario yet. It names the id but proves nothing.
+STUB = re.compile(rf"@pytest\.mark\.requirement\('{REQ_ID}'\)\ndef \w+\(page\):\n    # {REQ_ID}\n    missing\(.*\n")
+
+
+def _test_files(root: Path) -> list[str]:
+    found = dict.fromkeys(walk(root))
+    for sub in ("tests", "test", load_config(root)["e2eDir"]):  # not subject to the global file cap
+        found.update(dict.fromkeys(walk(root, sub)))
+    return [f for f in found if TEST_FILE.search(f) and not f.startswith(".sdd/") and not is_sensitive(f)]
+
+
 def test_refs(root: Path) -> dict:
-    """Map requirement id -> test files that mention it."""
+    """Map requirement id -> test files that mention it (generated placeholder stubs do not count)."""
     refs: dict = {}
-    for rel in walk(root):
-        if rel.startswith(".sdd/") or not TEST_FILE.search(rel):
-            continue
+    for rel in _test_files(root):
         text = read_text(Path(root) / rel)
         if not text:
             continue
-        for rid in set(REQ_REF.findall(text)):
+        for rid in set(REQ_REF.findall(STUB.sub("", text))):
             refs.setdefault(rid, []).append(rel)
     return refs
+
+
+def _id_owners(root: Path) -> dict:
+    """Requirement id -> features that define it. Ids repeat across features (each starts at REQ-001)."""
+    owners: dict = {}
+    for f in list_features(root):
+        text = read_text(feature_dir(root, f) / "spec.md")
+        for rid in set(parse_spec(text)["reqs"]) if text else ():
+            owners.setdefault(rid, set()).add(f)
+    return owners
+
+
+def feature_refs(root: Path, feature: str, refs: dict | None = None, owners: dict | None = None) -> dict:
+    """Test references that count for this feature.
+
+    An id defined by one feature only is matched anywhere. An id shared by several features counts
+    only in a test file whose path names the feature (tests/e2e/test_<feature>.py, tests/<feature>/...).
+    """
+    refs = test_refs(root) if refs is None else refs
+    owners = _id_owners(root) if owners is None else owners
+    keys = {feature, feature.replace("-", "_")}
+    out = {}
+    for rid, files in refs.items():
+        if len(owners.get(rid, ())) > 1:
+            files = [f for f in files if any(k in f for k in keys)]
+        if files:
+            out[rid] = files
+    return out
 
 
 def verify_feature(root: Path, feature: str, strict: bool = False) -> dict:
@@ -179,13 +265,23 @@ def verify_feature(root: Path, feature: str, strict: bool = False) -> dict:
             if r not in covered:
                 errors.append(f"{r} is not covered by any task")
 
-    refs = test_refs(root)
+    refs = feature_refs(root, feature)
     done = {r for t in tasks if t["done"] for r in t["covers"]}
     if cfg.get("requireTestsPerRequirement", True):
         for r in spec["reqs"]:
             if r in done and r not in refs:
                 (errors if strict else warnings).append(
                     f"{r} has completed task(s) but no test file names it")
+
+    if spec["status"] == "shipped":  # shipped means finished: every task done, every requirement proven
+        if not tasks:
+            errors.append("spec is shipped but has no tasks")
+        for t in tasks:
+            if not t["done"]:
+                errors.append(f"spec is shipped but {t['id']} is not checked")
+        for r in spec["reqs"]:
+            if r not in refs:
+                errors.append(f"spec is shipped but no test names {r}")
 
     # Security gate: credentials must never be committed inside SDD artifacts.
     for name, text in (("spec.md", spec_text), ("plan.md", plan_text), ("tasks.md", tasks_text),

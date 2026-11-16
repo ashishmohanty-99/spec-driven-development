@@ -1,0 +1,31 @@
+name: release
+# Tag a version (git tag v1.1.0 && git push origin v1.1.0) to publish the standalone skill bundle.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  skill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m unittest
+      - run: python tools/build_skill.py
+      - name: Attach specpilot-skill.zip to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          sha256sum dist/specpilot-skill.zip | tee dist/specpilot-skill.zip.sha256
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "SpecPilot $TAG" --generate-notes \
+            dist/specpilot-skill.zip dist/specpilot-skill.zip.sha256

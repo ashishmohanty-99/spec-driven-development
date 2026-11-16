@@ -1,6 +1,6 @@
 # Extending
 
-Organisation-specific behaviour goes in `.sdd/extensions/`. `sdd init --force` upgrades the core and never touches this folder, so nothing proprietary has to live in SpecPilot itself.
+Organisation-specific behaviour goes in `.sdd/extensions/`. `sdd init --force` upgrades the core and never overwrites a file in this folder, so nothing proprietary has to live in SpecPilot itself.
 
 ```mermaid
 flowchart LR
