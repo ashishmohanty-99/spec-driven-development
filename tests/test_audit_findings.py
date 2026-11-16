@@ -13,7 +13,7 @@ from specpilot.scan import scan
 from specpilot.security import SecurityError, is_sensitive, scan_text_for_secrets, write_text
 from specpilot.spec import load_config, parse_spec, verify_feature
 
-from .helpers import feature, sdd, tmp, write
+from .helpers import feature, sdd, tmp, use_python_e2e, write
 
 KEY = "sk-" + "Z9y8X7w6" * 4  # fixture, not a real credential
 DONE = {"plan": "# p", "tasks": "- [x] T-001 x (covers: REQ-001)"}
@@ -30,8 +30,10 @@ class Base(unittest.TestCase):
     def setUp(self):
         self.r = tmp()
         sdd(self.r, "init")
+        use_python_e2e(self.r)
 
     def config(self, **values):
+        values.setdefault("e2eFramework", "playwright-python")
         write(self.r, ".sdd/config.json", json.dumps(values))
 
 

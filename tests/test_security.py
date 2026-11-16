@@ -9,7 +9,7 @@ from specpilot.gentests import gen_tests
 from specpilot.security import SecurityError, redact, safe_join, scan_text_for_secrets, validate_feature, write_text
 from specpilot.spec import verify_feature
 
-from .helpers import feature, sdd, tmp, write
+from .helpers import feature, sdd, tmp, use_python_e2e, write
 
 FAKE_KEY = "sk-" + "A1b2C3d4" * 4  # test fixture, not a real credential
 
@@ -58,6 +58,7 @@ class InjectionTests(unittest.TestCase):
     def test_spec_text_cannot_become_code(self):
         r = tmp()
         sdd(r, "init")
+        use_python_e2e(r)
         evil = '''x"); import os; os.system("touch /tmp/pwned"); ("'''
         feature(r, spec=f"Status: approved\n- REQ-001: a\n- REQ-001 — Given {evil}, when '''b''', then c\\")
         out = gen_tests(r, "f1")["file"]

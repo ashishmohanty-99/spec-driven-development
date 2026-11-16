@@ -1,11 +1,29 @@
 # Changelog
 
+## 2.0.0
+
+### Changed
+- The skill is now named **spec-driven-development-by-ashishmohanty** (folder `skills/spec-driven-development-by-ashishmohanty/`). The `sdd` command and the Python package name are unchanged.
+- An empty repository now defaults to Gherkin acceptance tests instead of Python.
+
+### Added
+- **Guided setup.** `sdd questions` lists only what could not be detected (stack for new projects, test command, acceptance-test form, local address, lifecycle choice); `sdd answer <id> <value>` records each answer. New `guided-setup` skill and `/sdd-setup` command.
+- **Choose your lifecycle.** `sdd lifecycle` shows nine optional checks. `sdd lifecycle skip <check> --reason "..."` switches one off, prints what that costs and records the reason; every status, verify, regression and next report repeats which checks are off. Approving a spec before code cannot be switched off.
+- **`sdd next`**: the single next action for the repository and for each feature.
+- **Language-agnostic acceptance tests.** `sdd gen-tests` now writes Playwright Python, Playwright TypeScript, or Gherkin feature files, chosen from the detected stack.
+- **New-project scaffolding.** `project-scaffold` skill, `/sdd-scaffold` command and a Project Structure reference: agree a conventional folder tree, generate it with the ecosystem's tooling, prove build, lint and one test.
+- Friendlier `sdd init` output: what was found, what was done, what to do next.
+
+### Fixed
+- Documentation files inside a test folder no longer count as tests for traceability.
+- A scenario that quotes markup such as `<b>` is no longer mistaken for a template placeholder.
+
 ## 1.2.0
 
 ### Changed
-- The repository is now directly installable as a skill: `npx skills add ashishmohanty-99/spec-driven-development`. The complete skill (entry `SKILL.md`, bundled CLI, reference pages) is committed at `skills/specpilot/`, so no release or build step is needed to share it.
-- The Python package source moved to `skills/specpilot/scripts/specpilot/`; `pip install` and the `sdd` command are unchanged.
-- Reference pages moved from `wiki/` to `skills/specpilot/references/`; the wiki is published from both.
+- The repository is now directly installable as a skill: `npx skills add ashishmohanty-99/spec-driven-development`. The complete skill (entry `SKILL.md`, bundled CLI, reference pages) is committed at `skills/spec-driven-development-by-ashishmohanty/`, so no release or build step is needed to share it.
+- The Python package source moved to `skills/spec-driven-development-by-ashishmohanty/scripts/specpilot/`; `pip install` and the `sdd` command are unchanged.
+- Reference pages moved from `wiki/` to `skills/spec-driven-development-by-ashishmohanty/references/`; the wiki is published from both.
 - `tools/build_skill.py` now only zips the skill folder for upload-only hosts.
 
 ## 1.1.0

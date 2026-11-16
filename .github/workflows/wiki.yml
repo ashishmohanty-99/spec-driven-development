@@ -4,7 +4,7 @@ name: publish-wiki
 on:
   push:
     branches: [main]
-    paths: ["wiki/**", "skills/specpilot/references/**"]
+    paths: ["wiki/**", "skills/spec-driven-development-by-ashishmohanty/references/**"]
   workflow_dispatch:
 
 permissions:
@@ -27,7 +27,7 @@ jobs:
           git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git" out
           find out -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           cp -R wiki/. out/
-          cp skills/specpilot/references/*.md out/
+          cp skills/spec-driven-development-by-ashishmohanty/references/*.md out/
           cd out
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

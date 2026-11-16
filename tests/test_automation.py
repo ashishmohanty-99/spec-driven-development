@@ -6,10 +6,10 @@ from specpilot.gentests import gen_tests
 from specpilot.regression import regression
 from specpilot.security import SecurityError
 
-from .helpers import feature, sdd, tmp, write
+from .helpers import feature, sdd, tmp, use_python_e2e, write
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILL = ROOT / "skills" / "specpilot"
+SKILL = ROOT / "skills" / "spec-driven-development-by-ashishmohanty"
 ASSETS = SKILL / "scripts" / "specpilot" / "assets"
 SPEC = ("Status: approved\n- REQ-001: a\n- REQ-002: b\n## Acceptance scenarios\n"
         '- REQ-001 — Given the user opens /login, when they click "Sign in", then the page shows "Welcome"\n')
@@ -19,6 +19,7 @@ class GenTestsTests(unittest.TestCase):
     def setUp(self):
         self.r = tmp()
         sdd(self.r, "init")
+        use_python_e2e(self.r)
 
     def test_errors_without_spec_or_requirements(self):
         with self.assertRaises(SecurityError):
@@ -67,7 +68,7 @@ class ConnectorTests(unittest.TestCase):
     """The connector's step matching is plain regex logic, testable without a browser."""
 
     def test_builtin_steps_match_documented_phrasings(self):
-        source = (ASSETS / "e2e" / "ui_connector.py").read_text()
+        source = (ASSETS / "e2e" / "playwright-python" / "ui_connector.py").read_text()
         patterns = [re.compile(p, re.IGNORECASE) for p in re.findall(r"@step\(r'(.+)'\)\n", source)]
         self.assertGreaterEqual(len(patterns), 7)
         for phrase in ("the user opens /login", "the user is logged in", "they are logged in as admin",
@@ -124,7 +125,7 @@ class AssetLintTests(unittest.TestCase):
             self.assertLessEqual(len(fm["description"]), 1024)
             for section in ("## Overview", "## Common Rationalizations", "## Red Flags", "## Verification"):
                 self.assertIn(section, text, f"{d.name}: {section}")
-            self.assertNotIn("npx ", text, d.name)
+            self.assertNotIn("npx specpilot", text, d.name)
             names.add(d.name)
         for f in list((ASSETS / "commands").glob("*.md")) + list((ASSETS / "skills").rglob("*.md")):
             for ref in re.findall(r"`([a-z][a-z-]+)` skill", f.read_text()):
@@ -142,11 +143,11 @@ if __name__ == "__main__":
 
 
 class DistributionTests(unittest.TestCase):
-    """skills/specpilot/ is the product: it must be a valid skill and work when copied anywhere."""
+    """skills/spec-driven-development-by-ashishmohanty/ is the product: it must be a valid skill and work when copied anywhere."""
 
     def test_skill_folder_is_a_valid_self_contained_skill(self):
         fm = AssetLintTests.front(SKILL / "SKILL.md")
-        self.assertEqual(fm["name"].strip(), "specpilot")
+        self.assertEqual(fm["name"].strip(), "spec-driven-development-by-ashishmohanty")
         self.assertLessEqual(set(fm), {"name", "description", "license", "compatibility", "metadata", "allowed-tools"})
         self.assertLessEqual(len(fm["description"].strip()), 1024)
         text = (SKILL / "SKILL.md").read_text()
@@ -160,7 +161,7 @@ class DistributionTests(unittest.TestCase):
         import subprocess
         import sys
 
-        installed = tmp() / "skills" / "specpilot"  # what `npx skills add` or an unzip leaves behind
+        installed = tmp() / "skills" / "spec-driven-development-by-ashishmohanty"  # what `npx skills add` or an unzip leaves behind
         shutil.copytree(SKILL, installed, ignore=shutil.ignore_patterns("__pycache__"))
         project = tmp()
         env = {"PATH": "/usr/bin:/bin"}  # no PYTHONPATH: only the copy is importable
@@ -175,7 +176,7 @@ class DistributionTests(unittest.TestCase):
 
     def test_only_the_entry_skill_is_discoverable_at_the_top_level(self):
         # Installers list skills/<name>/SKILL.md; the phase skills are installed per project by `sdd init`.
-        self.assertEqual([p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")], ["specpilot"])
+        self.assertEqual([p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")], ["spec-driven-development-by-ashishmohanty"])
 
     def test_zip_for_upload_is_reproducible_and_complete(self):
         import sys
@@ -186,10 +187,9 @@ class DistributionTests(unittest.TestCase):
 
         archive = build_skill.build(tmp())
         names = zipfile.ZipFile(archive).namelist()
-        for expected in ("specpilot/SKILL.md", "specpilot/scripts/sdd.py", "specpilot/references/Security-Model.md",
-                         "specpilot/scripts/specpilot/cli.py"):
-            self.assertIn(expected, names)
-        self.assertFalse([n for n in names if "__pycache__" in n or not n.startswith("specpilot/")])
+        for expected in ("SKILL.md", "scripts/sdd.py", "references/Security-Model.md", "scripts/specpilot/cli.py"):
+            self.assertIn("spec-driven-development-by-ashishmohanty/" + expected, names)
+        self.assertFalse([n for n in names if "__pycache__" in n or not n.startswith("spec-driven-development-by-ashishmohanty/")])
         self.assertEqual(archive.read_bytes(), build_skill.build(tmp()).read_bytes())
 
 
@@ -197,6 +197,7 @@ class WalkthroughRegressionTests(unittest.TestCase):
     def setUp(self):
         self.r = tmp()
         sdd(self.r, "init")
+        use_python_e2e(self.r)
 
     def test_template_placeholder_scenarios_do_not_become_tests(self):
         sdd(self.r, "new", "f1")

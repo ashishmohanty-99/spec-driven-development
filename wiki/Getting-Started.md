@@ -12,7 +12,7 @@ This one command installs the `specpilot` skill into Claude Code, Cursor, Codex,
 
 ```mermaid
 flowchart LR
-    A["npx skills add<br/>ashishmohanty-99/spec-driven-development"] --> B["Ask your agent:<br/>Set up SpecPilot in this repository"]
+    A["npx skills add<br/>ashishmohanty-99/spec-driven-development"] --> B["Ask your agent:<br/>Set up spec-driven development in this repository"]
     B --> C["Skill runs its bundled tool<br/>sdd init --vendor"]
     C --> D([Repository ready<br/>tool lives in .sdd/bin/])
     D --> E["Teammates: git pull<br/>nothing to install"]
@@ -22,13 +22,13 @@ flowchart LR
 |---|---|
 | Claude Code plugin | `/plugin install specpilot --marketplace ashishmohanty-99/spec-driven-development` |
 | Python package | `pipx install git+https://github.com/ashishmohanty-99/spec-driven-development` |
-| claude.ai | Clone the repository, run `python tools/build_skill.py`, upload `dist/specpilot-skill.zip` at Customize → Skills |
+| claude.ai | Clone the repository, run `python tools/build_skill.py`, upload `dist/sdd-skill.zip` at Customize → Skills |
 
 The tool needs Python 3.11+ and has no third-party dependencies. After setup it lives in your project at `.sdd/bin/`; wherever this guide says `sdd`, run `python3 .sdd/bin/sdd.py` (or plain `sdd` if you installed the Python package).
 
 ## 2. Initialise your repository
 
-Ask your agent **"Set up SpecPilot in this repository"**, or run it yourself:
+Ask your agent **"Set up spec-driven development in this repository"**, or run it yourself:
 
 ```bash
 cd your-project
@@ -48,21 +48,39 @@ flowchart TD
 
 `init` never overwrites your files unless you pass `--force`, and it only reads file names and manifests. It does not open `.env` or key files.
 
-## 3. Confirm the setup
+## 3. Answer a few questions
+
+The agent tells you what it detected, then asks only what it could not work out. Each question has a recommended answer; "use the defaults" is a valid reply.
+
+| It asks | Why |
+|---|---|
+| What are you building? (only in an empty repository) | To set up the right folder structure |
+| What command runs your tests? | Used by the regression run and CI |
+| Which form should acceptance tests take? | Playwright with Python or TypeScript, or Gherkin for any other stack |
+| Where does the app run locally? | Browser tests need a starting address |
+| Keep the full lifecycle, or switch a check off? | Your choice; see [Lifecycle Options](Lifecycle-Options) |
+
+Prefer the command line?
 
 ```bash
-sdd doctor   # is everything installed?
-sdd audit    # any secrets or risky config?
+sdd questions
 ```
 
-## 4. Teach it your codebase (once)
+```bash
+sdd answer test-command "pytest"
+```
 
-In your agent:
+## 4. Starting from nothing?
 
-| You type | The agent does | You check |
-|---|---|---|
-| `/sdd-init` | Runs the detected commands, reads sample modules, records conventions and hazards in the profile | Commands and conventions are right |
-| `/sdd-constitution` | Drafts rules from what your repo already enforces | Edit, then set `Status: ratified` yourself |
+In an empty repository the agent proposes a folder structure for your stack, waits for your approval, generates it with the ecosystem's own tooling, and proves that build, lint and one test pass. See [Project Structure](Project-Structure).
+
+Then agree your team rules: `/sdd-constitution`, and set `Status: ratified` yourself.
+
+At any point:
+
+```bash
+sdd next
+```
 
 ## 5. Ship your first feature
 

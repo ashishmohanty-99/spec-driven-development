@@ -32,8 +32,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: matrix.python == '3.13'
         with:
-          name: specpilot-skill
-          path: dist/specpilot-skill.zip
+          name: sdd-skill
+          path: dist/sdd-skill.zip
 
   security:
     runs-on: ubuntu-latest
@@ -47,5 +47,5 @@ jobs:
           python-version: "3.13"
       - run: pip install ruff bandit .
       - run: ruff check .
-      - run: bandit -r skills/specpilot/scripts/specpilot -c pyproject.toml
+      - run: bandit -r skills/spec-driven-development-by-ashishmohanty/scripts/specpilot -c pyproject.toml
       - run: sdd audit
