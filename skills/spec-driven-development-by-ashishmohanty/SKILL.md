@@ -96,6 +96,7 @@ A check the team switched off is skipped without argument; say so in your report
 | `references/SDD-and-the-AI-SDLC.md` | Why the method exists; how to write testable requirements |
 | `references/Extending.md` | Company rules, extra gates, internal tools |
 | `references/Troubleshooting.md` | Messages and fixes |
+| `references/Manual-Mode.md` | Applying every check by hand when the tool is not available |
 
 ## Common Rationalizations
 | Rationalization | Reality |

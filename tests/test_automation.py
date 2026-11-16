@@ -177,7 +177,8 @@ class DistributionTests(unittest.TestCase):
     def test_only_the_entry_skill_is_discoverable_at_the_top_level(self):
         # Installers list skills/<name>/SKILL.md; the phase skills are installed per project by `sdd init`.
         self.assertEqual([p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")], ["spec-driven-development-by-ashishmohanty"])
-        self.assertEqual(len([p for p in ROOT.rglob("SKILL.md") if ".git" not in p.parts]), 1)
+        # The directory build under plugin/ is separate; installers and the upload zip read skills/ only.
+        self.assertEqual(len(list((ROOT / "skills").rglob("SKILL.md"))), 1)
 
     def test_zip_for_upload_is_reproducible_and_complete(self):
         import sys
@@ -237,3 +238,69 @@ class DocsTests(unittest.TestCase):
         home = (ROOT / "wiki" / "Home.md").read_text()
         self.assertIn(f"{len(list((ASSETS / 'skills').iterdir()))} skills", home)
         self.assertIn(f"{len(list((ASSETS / 'commands').glob('*.md')))} slash commands", home)
+
+
+class DirectoryPluginTests(unittest.TestCase):
+    """plugin/ is what a public plugin directory reviews: documentation only, always in sync."""
+
+    @classmethod
+    def setUpClass(cls):
+        import sys
+        sys.path.insert(0, str(ROOT / "tools"))
+        import build_plugin
+        cls.bp = build_plugin
+        cls.plugin = ROOT / "plugin"
+
+    def test_committed_folder_matches_the_sources(self):
+        fresh = self.bp.snapshot(self.bp.build(tmp()))
+        self.assertEqual(sorted(fresh), sorted(self.bp.snapshot(self.plugin)))
+        self.assertEqual(fresh, self.bp.snapshot(self.plugin), "run: python3 tools/build_plugin.py")
+
+    def test_contains_only_file_types_a_directory_accepts(self):
+        self.assertEqual(self.bp.problems(self.plugin), [])
+        suffixes = {p.suffix.lower() for p in self.plugin.rglob("*") if p.is_file() and p.name != "LICENSE"}
+        self.assertLessEqual(suffixes, {".md", ".json", ".png"})
+        self.assertFalse(list(self.plugin.rglob("*.py")) + list(self.plugin.rglob("*.ts")))
+
+    def test_manifest_icon_and_readme_meet_the_listing_rules(self):
+        import json
+        import struct
+        manifest = json.loads((self.plugin / ".claude-plugin" / "plugin.json").read_text())
+        for field in ("name", "version", "description", "author", "license", "icon"):
+            self.assertTrue(manifest.get(field), field)
+        self.assertRegex(manifest["name"], r"^[a-z0-9]+(-[a-z0-9]+)*$")
+        png = (self.plugin / ".claude-plugin" / "icon.png").read_bytes()
+        self.assertEqual(png[:8], b"\x89PNG\r\n\x1a\n")
+        width, height = struct.unpack(">II", png[16:24])
+        self.assertEqual(width, height)
+        self.assertTrue(512 <= width <= 2048 and len(png) < 2_000_000)
+        self.assertGreaterEqual(len((self.plugin / "README.md").read_text().split()), 40)
+        self.assertTrue((self.plugin / "LICENSE").is_file())
+
+    def test_no_credential_variables_download_and_run_lines_or_script_paths(self):
+        for path in self.plugin.rglob("*.md"):
+            text = path.read_text()
+            self.assertNotIn("LLM_API_KEY", text, path.name)
+            self.assertNotRegex(text, r"curl [^\n]*\|\s*(ba)?sh", path.name)
+            self.assertNotIn("${{ secrets.", text, path.name)
+        entry = (self.plugin / "skills" / "spec-driven-development-by-ashishmohanty" / "SKILL.md").read_text()
+        self.assertNotIn("scripts/", entry)
+        self.assertIn("Manual-Mode.md", entry)
+
+    def test_every_skill_is_valid_and_every_reference_resolves(self):
+        names = set()
+        for skill in sorted((self.plugin / "skills").iterdir()):
+            fm = AssetLintTests.front(skill / "SKILL.md")
+            self.assertEqual(fm["name"].strip(), skill.name)
+            self.assertLessEqual(len(fm["description"].strip()), 1024)
+            names.add(skill.name)
+        self.assertEqual(len(names), 16)
+        entry = self.plugin / "skills" / "spec-driven-development-by-ashishmohanty"
+        for ref in re.findall(r"`(references/[\w-]+\.md)`", (entry / "SKILL.md").read_text()):
+            self.assertTrue((entry / ref).is_file(), ref)
+        manual = (entry / "references" / "Manual-Mode.md").read_text()
+        for template in re.findall(r"`(templates/[\w-]+\.md)`", manual):
+            self.assertTrue((entry / template).is_file(), template)
+        for command in (self.plugin / "commands").glob("*.md"):
+            for used in re.findall(r"`([a-z][a-z-]+)` skill", command.read_text()):
+                self.assertIn(used, names, f"{command.name} -> {used}")

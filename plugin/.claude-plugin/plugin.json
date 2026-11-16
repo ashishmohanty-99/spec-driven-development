@@ -1,0 +1,20 @@
+{
+  "name": "spec-driven-development-by-ashishmohanty",
+  "version": "2.1.0",
+  "description": "Spec-Driven Development for the whole AI software lifecycle, in any language: guided setup, approved specs, traceable tasks, generated acceptance tests, security checks and a human approval at each step.",
+  "author": {
+    "name": "ashishmohanty-99",
+    "url": "https://github.com/ashishmohanty-99"
+  },
+  "homepage": "https://github.com/ashishmohanty-99/spec-driven-development",
+  "repository": "https://github.com/ashishmohanty-99/spec-driven-development",
+  "license": "MIT",
+  "keywords": [
+    "spec-driven-development",
+    "sdd",
+    "sdlc",
+    "testing",
+    "security"
+  ],
+  "icon": "./.claude-plugin/icon.png"
+}

@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.0
+
+### Added
+- `plugin/`: a documentation-only build of the skill for plugin directories, which accept only Markdown, JSON, YAML and images from publishers that are not verified organisations. It holds the entry skill, all fifteen phase skills, the commands, the subagents, the templates, the reference pages and an icon, and no scripts. Rebuild with `python tools/build_plugin.py`; CI fails if it is out of date.
+- Manual mode (`references/Manual-Mode.md`): every `sdd` command's job described as steps an agent can apply by hand, so the method works where the tool is not installed.
+
+### Changed
+- When the tool is unavailable, the skills now fall back to manual mode instead of asking for an install.
+
 ## 2.0.1
 
 ### Fixed
