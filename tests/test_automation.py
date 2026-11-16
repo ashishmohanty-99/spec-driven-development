@@ -304,3 +304,14 @@ class DirectoryPluginTests(unittest.TestCase):
         for command in (self.plugin / "commands").glob("*.md"):
             for used in re.findall(r"`([a-z][a-z-]+)` skill", command.read_text()):
                 self.assertIn(used, names, f"{command.name} -> {used}")
+
+    def test_no_plugin_file_is_hidden_by_gitignore(self):
+        """A phase skill named after an ignored folder (build/) once went missing from the published plugin."""
+        import shutil
+        import subprocess
+        git = shutil.which("git")
+        if not git or not (ROOT / ".git").exists():
+            self.skipTest("not a git checkout")
+        ignored = subprocess.run([git, "ls-files", "--others", "--ignored", "--exclude-standard", "plugin", "skills"],
+                                 cwd=ROOT, capture_output=True, text=True, check=False).stdout.split("\n")
+        self.assertEqual([f for f in ignored if f and "__pycache__" not in f], [])
