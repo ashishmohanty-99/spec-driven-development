@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.3
+
+### Fixed
+- The directory build (`plugin/`) no longer contains any remote web address in its documents, and its test-automation skill no longer describes sign-in details as environment variables. The directory's scan combined those across files into one remaining hold.
+
 ## 2.2.2
 
 ### Fixed

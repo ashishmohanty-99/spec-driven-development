@@ -1,3 +1,3 @@
 """SpecPilot: codebase-aware Spec-Driven Development for the AI SDLC."""
 
-__version__ = "2.2.2"
+__version__ = "2.2.3"

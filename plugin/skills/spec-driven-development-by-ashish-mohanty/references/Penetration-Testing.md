@@ -1,6 +1,6 @@
 # Penetration Testing
 
-Security-relevant changes (sign-in, permissions, input handling, new endpoints) should be attacked before they ship. This method uses [Strix](https://github.com/usestrix/strix), an open-source AI penetration-testing agent, and treats its result as a gate.
+Security-relevant changes (sign-in, permissions, input handling, new endpoints) should be attacked before they ship. This method uses Strix, an open-source AI penetration-testing agent (the `usestrix/strix` project on GitHub), and treats its result as a gate.
 
 ## The rule about credentials
 
