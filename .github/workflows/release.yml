@@ -26,6 +26,6 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          sha256sum dist/specpilot-skill.zip | tee dist/specpilot-skill.zip.sha256
+          sha256sum dist/sdd-skill.zip | tee dist/sdd-skill.zip.sha256
           gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "SpecPilot $TAG" --generate-notes \
-            dist/specpilot-skill.zip dist/specpilot-skill.zip.sha256
+            dist/sdd-skill.zip dist/sdd-skill.zip.sha256

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "specpilot"
-version = "1.1.0"
-description = "Codebase-aware Spec-Driven Development for the AI SDLC: skills, gates, generated regression tests and a guarded pentest step."
+version = "2.0.0"
+description = "Spec-Driven Development by ashishmohanty: a language-agnostic, guided lifecycle for AI-assisted software delivery."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -20,6 +20,7 @@ sdd = "specpilot.cli:main"
 specpilot = "specpilot.cli:main"
 
 [tool.setuptools.packages.find]
+where = ["skills/spec-driven-development-by-ashishmohanty/scripts"]
 include = ["specpilot*"]
 
 [tool.setuptools.package-data]
@@ -27,6 +28,7 @@ specpilot = ["assets/**/*"]
 
 [tool.ruff]
 line-length = 120
+src = ["skills/spec-driven-development-by-ashishmohanty/scripts", "."]
 
 [tool.bandit]
 exclude_dirs = ["tests"]

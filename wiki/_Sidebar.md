@@ -1,4 +1,4 @@
-### SpecPilot
+### Spec-Driven Development by ashishmohanty
 
 **Start here**
 - [Home](Home)
@@ -7,6 +7,8 @@
 
 **Using it**
 - [Step-by-Step Workflow](Step-by-Step-Workflow)
+- [Lifecycle Options](Lifecycle-Options)
+- [Project Structure](Project-Structure)
 - [Test Automation](Test-Automation)
 - [Penetration Testing](Penetration-Testing)
 

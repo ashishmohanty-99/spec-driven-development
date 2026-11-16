@@ -28,6 +28,18 @@ def write(root: Path, rel: str, content: str) -> Path:
     return path
 
 
+def use_python_e2e(root: Path) -> None:
+    """An empty repository defaults to Gherkin. Tests about the Python form pin it explicitly."""
+    import json
+    cfg_path = root / ".sdd" / "config.json"
+    cfg = json.loads(cfg_path.read_text())
+    cfg["e2eFramework"] = "playwright-python"
+    cfg_path.write_text(json.dumps(cfg))
+    from specpilot.gentests import ensure_scaffold
+    from specpilot.spec import e2e_dir
+    ensure_scaffold(root, e2e_dir(root), "playwright-python")
+
+
 def feature(root: Path, name="f1", spec=None, plan=None, tasks=None):
     for fname, body in (("spec.md", spec), ("plan.md", plan), ("tasks.md", tasks)):
         if body is not None:
