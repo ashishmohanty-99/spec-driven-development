@@ -1,6 +1,6 @@
 {
   "name": "spec-driven-development-by-ashishmohanty",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Codebase-aware Spec-Driven Development for the AI SDLC: gated phases, traceability, generated regression tests and a guarded pentest step.",
   "license": "MIT",
   "skills": "./skills",

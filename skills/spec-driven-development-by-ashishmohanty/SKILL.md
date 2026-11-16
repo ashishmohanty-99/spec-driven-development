@@ -29,12 +29,12 @@ Call it `SDD` below. Use the first that applies:
 2. **Tell the person what you found** in three or four plain lines, from the command's output.
 3. **Ask only what is missing.** Run `SDD questions --json` and ask each open question one at a time, recommended option first. Record every answer with `SDD answer <id> "<value>"`. A person who says "use the defaults" gets the recommended answers.
 4. **Offer the lifecycle choice honestly.** All checks are on by default and you recommend keeping them. A person may switch any optional check off. Before you do it, state what skipping costs (shown by `SDD lifecycle`), ask for a one-line reason, then run `SDD lifecycle skip <check> --reason "<reason>"`. Never switch a check off on your own initiative.
-5. **New, empty repository?** Create a proper project structure first: follow `scripts/specpilot/assets/skills/project-scaffold/SKILL.md` and `references/Project-Structure.md`. Propose the folder tree, wait for approval, generate it with the stack's official tooling, and prove that build, lint and one test pass.
+5. **New, empty repository?** Create a proper project structure first: follow `scripts/specpilot/assets/skills/project-scaffold/PHASE.md` and `references/Project-Structure.md`. Propose the folder tree, wait for approval, generate it with the stack's official tooling, and prove that build, lint and one test pass.
 6. **Finish with one screen:** what is set up, which checks are on or off, and the next action from `SDD next`. Then stop. Do not start a feature in the same turn.
 
 ## Every time after that
 1. Run `SDD next`.
-2. Read the installed skill for that phase (`.claude/skills/<name>/SKILL.md` or `.agents/skills/<name>/SKILL.md`; start with `using-sdd`). If they are not installed, the same files are in `scripts/specpilot/assets/skills/` inside this skill.
+2. Read the installed skill for that phase (`.claude/skills/<name>/SKILL.md` or `.agents/skills/<name>/SKILL.md`; start with `using-sdd`). If they are not installed, the same text is in `scripts/specpilot/assets/skills/<name>/PHASE.md` inside this skill.
 3. Do that one phase, save its artifact, and stop for the person.
 
 | Situation | Skill | The person |

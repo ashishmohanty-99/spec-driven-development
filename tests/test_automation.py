@@ -117,8 +117,8 @@ class AssetLintTests(unittest.TestCase):
     def test_skills(self):
         names = set()
         for d in sorted((ASSETS / "skills").iterdir()):
-            fm = self.front(d / "SKILL.md")
-            text = (d / "SKILL.md").read_text()
+            fm = self.front(d / "PHASE.md")
+            text = (d / "PHASE.md").read_text()
             self.assertIsNotNone(fm, d.name)
             self.assertEqual(fm["name"].strip(), d.name)
             self.assertRegex(fm["description"], r"\bUse (when|at|after|before|on|in)\b", d.name)
@@ -177,6 +177,7 @@ class DistributionTests(unittest.TestCase):
     def test_only_the_entry_skill_is_discoverable_at_the_top_level(self):
         # Installers list skills/<name>/SKILL.md; the phase skills are installed per project by `sdd init`.
         self.assertEqual([p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")], ["spec-driven-development-by-ashishmohanty"])
+        self.assertEqual(len([p for p in ROOT.rglob("SKILL.md") if ".git" not in p.parts]), 1)
 
     def test_zip_for_upload_is_reproducible_and_complete(self):
         import sys
@@ -189,6 +190,8 @@ class DistributionTests(unittest.TestCase):
         names = zipfile.ZipFile(archive).namelist()
         for expected in ("SKILL.md", "scripts/sdd.py", "references/Security-Model.md", "scripts/specpilot/cli.py"):
             self.assertIn("spec-driven-development-by-ashishmohanty/" + expected, names)
+        self.assertEqual([n for n in names if n.upper().endswith("SKILL.MD")],
+                         ["spec-driven-development-by-ashishmohanty/SKILL.md"], "upload hosts allow exactly one")
         self.assertFalse([n for n in names if "__pycache__" in n or not n.startswith("spec-driven-development-by-ashishmohanty/")])
         self.assertEqual(archive.read_bytes(), build_skill.build(tmp()).read_bytes())
 

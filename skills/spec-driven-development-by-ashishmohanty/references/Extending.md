@@ -41,7 +41,7 @@ The agent learns how to *call* the tool. The tool's code and credentials stay wh
 
 ## Adding a skill
 
-1. `skills/spec-driven-development-by-ashishmohanty/scripts/specpilot/assets/skills/<name>/SKILL.md` with frontmatter `name` (equal to the folder) and a `description` that includes "Use when …".
+1. `skills/spec-driven-development-by-ashishmohanty/scripts/specpilot/assets/skills/<name>/PHASE.md` (installed into projects as `SKILL.md`) with frontmatter `name` (equal to the folder) and a `description` that includes "Use when …".
 2. Sections: Overview, process, Common Rationalizations, Red Flags, Verification.
 3. Add a route in `using-sdd` and optionally a `commands/sdd-<name>.md`.
 4. `python -m unittest` (the asset lint test checks the contract).
