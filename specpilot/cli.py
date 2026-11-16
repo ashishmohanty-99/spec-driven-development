@@ -19,11 +19,20 @@ def _parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="sdd", description="SpecPilot: gated Spec-Driven Development for the AI SDLC.")
     p.add_argument("--version", action="version", version=f"specpilot {__version__}")
     p.add_argument("--dir", default=".", help="project root (default: current directory)")
-    sub = p.add_subparsers(dest="command", metavar="<command>")
+    common = argparse.ArgumentParser(add_help=False)  # lets --dir also follow the command
+    common.add_argument("--dir", default=argparse.SUPPRESS, help=argparse.SUPPRESS)
+    _sub = p.add_subparsers(dest="command", metavar="<command>")
+
+    class sub:
+        @staticmethod
+        def add_parser(name, **kwargs):
+            return _sub.add_parser(name, parents=[common], **kwargs)
 
     s = sub.add_parser("init", help="profile the repo; install skills, commands, templates, test scaffolding")
     s.add_argument("--agent", choices=sorted(AGENTS), default="claude")
     s.add_argument("--force", action="store_true", help="overwrite installed skills/commands/templates")
+    s.add_argument("--vendor", action="store_true",
+                   help="also copy the CLI into .sdd/bin so the project needs no installation")
     sub.add_parser("scan", help="refresh .sdd/codebase-profile.md")
     s = sub.add_parser("new", help="create .sdd/specs/<feature>/spec.md")
     s.add_argument("feature")
@@ -70,7 +79,7 @@ def _dispatch(args, root: Path, parser) -> int:
         raise SecurityError(f"not a directory: {root}")
 
     if cmd == "init":
-        result = init(root, args.agent, args.force)
+        result = init(root, args.agent, args.force, args.vendor)
         print("SpecPilot initialised:")
         for line in result["log"]:
             print(f"  + {line}")

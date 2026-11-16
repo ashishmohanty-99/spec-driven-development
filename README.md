@@ -12,6 +12,12 @@ A human approves at every arrow. The `sdd` CLI checks what can be checked mechan
 
 ## Install
 
+Pick one. All three give the same process; they differ in how the `sdd` tool reaches you.
+
+**A. Standalone skill (nothing to install).** Download `specpilot-skill.zip` from the [latest release](https://github.com/ashishmohanty-99/spec-driven-development/releases/latest) and unzip it into `~/.claude/skills/` (or upload it at claude.ai → Customize → Skills). Then ask your agent: *"Set up SpecPilot in this repository."* The skill carries the CLI and copies it into your project.
+
+**B. Python package.**
+
 ```bash
 pipx install git+https://github.com/ashishmohanty-99/spec-driven-development
 cd your-project
@@ -19,7 +25,13 @@ sdd init          # add --agent generic for Codex, Cursor, Copilot, Gemini
 sdd audit
 ```
 
-Python 3.11+. The CLI uses the standard library only.
+**C. Claude Code plugin** (skills and commands; install the package from B for the CLI).
+
+```
+/plugin install specpilot --marketplace ashishmohanty-99/spec-driven-development
+```
+
+Python 3.11+. The CLI uses the standard library only. `sdd init --vendor` copies the CLI into `.sdd/bin/` so teammates and CI need nothing installed.
 
 ## Use
 
@@ -67,6 +79,7 @@ No command, config field or prompt accepts an API key. The pentest step lets Str
 |---|---|
 | `specpilot/` | CLI: `scan`, `spec` (gates), `gentests`, `regression`, `pentest`, `audit`, `security` |
 | `specpilot/assets/` | Skills, slash commands, subagents, templates, e2e connector |
+| `skill/`, `tools/build_skill.py` | Standalone skill entry point and the script that bundles it |
 | `tests/` | Unit and security regression tests (`python -m unittest`) |
 | `wiki/` | Documentation, published to the GitHub wiki |
 
@@ -74,6 +87,7 @@ No command, config field or prompt accepts an API key. The pentest step lets Str
 
 ```bash
 python -m unittest
+python tools/build_skill.py     # dist/specpilot-skill.zip
 pip install ruff bandit && ruff check . && bandit -r specpilot -c pyproject.toml
 ```
 

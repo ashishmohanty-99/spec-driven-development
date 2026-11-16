@@ -43,6 +43,9 @@ def walk(root: Path) -> list[str]:
     files: list[str] = []
     for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
         rel_dir = os.path.relpath(dirpath, root)
+        if rel_dir.replace(os.sep, "/") == ".sdd/bin":  # vendored SpecPilot CLI is not project code
+            dirnames[:] = []
+            continue
         depth = 0 if rel_dir == "." else rel_dir.count(os.sep) + 1
         dirnames[:] = sorted(
             d for d in dirnames

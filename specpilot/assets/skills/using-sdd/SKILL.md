@@ -13,6 +13,8 @@ This repository follows gated Spec-Driven Development: no feature code until a h
 2. Read `.sdd/extensions/*.md` if present; they add org-specific rules and tooling.
 3. Run `sdd status` to see each feature's phase. Do not guess the phase.
 
+`sdd` is the SpecPilot CLI. The managed block in `CLAUDE.md` / `AGENTS.md` states how to invoke it in this repository: plain `sdd` when it is installed, or `python3 .sdd/bin/sdd.py` when the project carries its own copy. Use that form wherever a skill says `sdd`. If neither works, ask the user to install it: `pipx install git+https://github.com/ashishmohanty-99/spec-driven-development`.
+
 ## Phase router
 ```
 Constitution missing or "Status: draft"? ──→ constitution

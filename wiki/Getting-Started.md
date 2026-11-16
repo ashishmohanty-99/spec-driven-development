@@ -4,11 +4,25 @@ Time: about 10 minutes. You need Python 3.11+ and an AI coding agent (Claude Cod
 
 ## 1. Install
 
-```bash
-pipx install git+https://github.com/ashishmohanty-99/spec-driven-development
+```mermaid
+flowchart TD
+    Q{How do you want it?} -->|Nothing to install| A["Standalone skill<br/>specpilot-skill.zip"]
+    Q -->|I use pip| B["Python package<br/>pipx install …"]
+    Q -->|Claude Code plugin| C["/plugin install specpilot …<br/>+ package for the CLI"]
+    A --> I["Ask the agent:<br/>Set up SpecPilot in this repository"]
+    B --> J[sdd init]
+    C --> J
+    I --> R([Repository ready])
+    J --> R
 ```
 
-No pipx? `pip install git+https://github.com/ashishmohanty-99/spec-driven-development` inside a virtual environment works too. The CLI has no third-party dependencies.
+| Option | Steps |
+|---|---|
+| **A. Standalone skill** | Download `specpilot-skill.zip` from the [latest release](https://github.com/ashishmohanty-99/spec-driven-development/releases/latest). Unzip into `~/.claude/skills/` (Claude Code) or upload at claude.ai → Customize → Skills. Ask: *"Set up SpecPilot in this repository."* |
+| **B. Python package** | `pipx install git+https://github.com/ashishmohanty-99/spec-driven-development` (or `pip install` in a virtual environment) |
+| **C. Claude Code plugin** | `/plugin install specpilot --marketplace ashishmohanty-99/spec-driven-development`, plus option B for the `sdd` command |
+
+The CLI needs Python 3.11+ and has no third-party dependencies. Option A copies the CLI into your project at `.sdd/bin/`; wherever this guide says `sdd`, run `python3 .sdd/bin/sdd.py`. With option B you can do the same for teammates and CI using `sdd init --vendor`.
 
 ## 2. Initialise your repository
 

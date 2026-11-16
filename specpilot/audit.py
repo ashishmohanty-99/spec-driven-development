@@ -35,7 +35,7 @@ def audit(root: Path) -> dict:
 
     for rel in files:
         if rel in SCAN_FILES or rel.startswith(SCAN_PREFIXES):
-            if rel.startswith(".sdd/security/"):
+            if rel.startswith((".sdd/security/", ".sdd/bin/")):
                 continue
             for line_no, kind in scan_text_for_secrets(read_text(root / rel) or ""):
                 findings.append(("FAIL", f"possible {kind} in {rel}:{line_no}. Remove it and rotate the credential."))

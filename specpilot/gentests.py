@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .security import SecurityError, one_line, read_text, safe_join, validate_feature, write_text
-from .spec import feature_dir, load_config, parse_scenarios, parse_spec
+from .spec import PLACEHOLDER, feature_dir, load_config, parse_scenarios, parse_spec
 
 BEGIN = "# SPECPILOT:GENERATED-BEGIN (rewritten by `sdd gen-tests`; put your own tests below END)"
 END = "# SPECPILOT:GENERATED-END"
@@ -18,9 +18,14 @@ def _fn(req: str, n: int) -> str:
     return f"test_{req.lower().replace('-', '_')}_{n}"
 
 
+def usable(scenarios: list[dict]) -> list[dict]:
+    """Drop scenarios that are still template placeholders ("Given …, when …, then …")."""
+    return [s for s in scenarios if not PLACEHOLDER.search(s["raw"])]
+
+
 def render(feature: str, spec: dict, scenarios: list[dict]) -> str:
     by_req: dict = {}
-    for s in scenarios:
+    for s in usable(scenarios):
         by_req.setdefault(s["req"], []).append(s)
     blocks = []
     for req in dict.fromkeys(spec["reqs"]):
@@ -69,7 +74,6 @@ def gen_tests(root: Path, feature: str) -> dict:
     if previous and END in previous:
         fresh = fresh[: fresh.index(END) + len(END)] + previous[previous.index(END) + len(END):]
     write_text(root, path, fresh)
-    scenarios = parse_scenarios(spec_text)
-    covered = {s["req"] for s in scenarios if s["given"]}
+    covered = {s["req"] for s in usable(parse_scenarios(spec_text)) if s["given"]}
     return {"file": path, "created": created,
             "missing": [r for r in dict.fromkeys(spec["reqs"]) if r not in covered]}

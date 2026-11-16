@@ -28,6 +28,12 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -W error::ResourceWarning -m unittest -v
       - run: pip install . && sdd --version && sdd --dir "$(mktemp -d)" init
+      - run: python tools/build_skill.py
+      - uses: actions/upload-artifact@v4
+        if: matrix.python == '3.13'
+        with:
+          name: specpilot-skill
+          path: dist/specpilot-skill.zip
 
   security:
     runs-on: ubuntu-latest

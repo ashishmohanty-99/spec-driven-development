@@ -4,11 +4,11 @@
 sdd [--dir PATH] <command> [options]
 ```
 
-`--dir` goes before the command. Also available as `specpilot` and `python -m specpilot`.
+`--dir` may go before or after the command. Also available as `specpilot` and `python -m specpilot`.
 
 | Command | What it does | Exit codes |
 |---|---|---|
-| `sdd init [--agent claude\|generic] [--force]` | Profile the repo; install skills, commands, templates, e2e scaffolding; harden `.gitignore` | 0, 1 |
+| `sdd init [--agent claude\|generic] [--force] [--vendor]` | Profile the repo; install skills, commands, templates, e2e scaffolding; harden `.gitignore`. `--vendor` also copies the CLI to `.sdd/bin/` | 0, 1 |
 | `sdd scan` | Refresh `.sdd/codebase-profile.md` (keeps your "Human-supplied context") | 0 |
 | `sdd new <feature>` | Create `.sdd/specs/<feature>/spec.md` | 0, 1 |
 | `sdd status` | Phase and progress of every feature | 0, 1 |

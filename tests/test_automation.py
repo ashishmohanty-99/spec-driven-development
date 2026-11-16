@@ -130,3 +130,67 @@ class AssetLintTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DistributionTests(unittest.TestCase):
+    """The standalone skill bundle must work with nothing installed."""
+
+    def test_skill_bundle_builds_and_runs_standalone(self):
+        import subprocess
+        import sys
+        import zipfile
+
+        sys.path.insert(0, str(ASSETS.parent.parent / "tools"))
+        import build_skill
+
+        out = tmp()
+        archive = build_skill.build(out)
+        names = zipfile.ZipFile(archive).namelist()
+        self.assertIn("specpilot/SKILL.md", names)
+        self.assertIn("specpilot/scripts/sdd.py", names)
+        self.assertIn("specpilot/references/Security-Model.md", names)
+        self.assertFalse([n for n in names if "__pycache__" in n or not n.startswith("specpilot/")])
+        self.assertEqual(archive.read_bytes(), build_skill.build(tmp()).read_bytes(), "build is reproducible")
+
+        fm = AssetLintTests.front(out / "specpilot" / "SKILL.md")
+        self.assertEqual(fm["name"].strip(), "specpilot")
+        self.assertLessEqual(set(fm), {"name", "description", "license", "compatibility", "metadata", "allowed-tools"})
+        self.assertLessEqual(len(fm["description"].strip()), 1024)
+
+        project = tmp()
+        env = {"PATH": "/usr/bin:/bin"}  # no PYTHONPATH: only the bundle is importable
+        launcher = str(out / "specpilot" / "scripts" / "sdd.py")
+        run = subprocess.run([sys.executable, launcher, "--dir", str(project), "init", "--vendor"],
+                             env=env, capture_output=True, text=True, check=False)
+        self.assertEqual(run.returncode, 0, run.stderr)
+        for cmd in ("doctor", "audit", "status"):
+            vendored = subprocess.run([sys.executable, ".sdd/bin/sdd.py", cmd], cwd=project, env=env,
+                                      capture_output=True, text=True, check=False)
+            self.assertEqual(vendored.returncode, 0, f"{cmd}: {vendored.stdout}{vendored.stderr}")
+        self.assertIn("python3 .sdd/bin/sdd.py", (project / "CLAUDE.md").read_text())
+
+
+class WalkthroughRegressionTests(unittest.TestCase):
+    def setUp(self):
+        self.r = tmp()
+        sdd(self.r, "init")
+
+    def test_template_placeholder_scenarios_do_not_become_tests(self):
+        sdd(self.r, "new", "f1")
+        source = gen_tests(self.r, "f1")["file"].read_text()
+        self.assertNotIn("run_scenario(\n", source)
+        self.assertIn("missing('REQ-001", source)
+
+    def test_dir_option_works_before_and_after_the_command(self):
+        self.assertEqual(sdd(self.r, "status")[0], 0)
+        import contextlib
+        import io
+
+        from specpilot.cli import main
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(main(["status", "--dir", str(self.r)]), 0)
+
+    def test_conftest_reports_missing_playwright_clearly(self):
+        text = (self.r / "tests/e2e/conftest.py").read_text()
+        self.assertIn("pytest-playwright is not installed", text)
+        compile(text, "conftest.py", "exec")
