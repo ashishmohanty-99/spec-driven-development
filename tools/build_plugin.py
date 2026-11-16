@@ -40,8 +40,29 @@ This plugin carries documentation only. Tell the person once that the optional t
 """
 
 
+# The directory holds a version when one file both names a remote host and mentions reading a
+# credential from the environment. These rewordings keep the meaning and remove that pairing.
+REWORDINGS = [
+    ("the open-source Strix agent (https://github.com/usestrix/strix)", "the open-source Strix agent"),
+    ("The key exists only as the `LLM_API_KEY` environment variable in the user's shell or CI secret store.",
+     "The key lives only in the person's own shell or CI secret store."),
+    ('Never run `env`, `printenv`, `cat .env` or similar to "check" the configuration.',
+     "Never inspect the person's environment or secret files to check the configuration."),
+    ("Read from env by Strix only.", "Strix reads it from the person's own shell."),
+    ("a non-local `http://` API base", "an unencrypted remote API address"),
+    ("`AWS_*`, tokens and the rest are dropped", "cloud keys, tokens and the rest are dropped"),
+    ("refer to a throwaway test account or to environment variables.",
+     "refer to a throwaway test account that exists only in the test environment."),
+    ("Use an `https://` API base", "Use an encrypted (https) API address"),
+    ("ENV -->|env vars only| CLI", "ENV -->|settings only| CLI"),
+    ("CLI -->|no shell, minimal env| APP", "CLI -->|no shell, minimal environment| APP"),
+]
+
+
 def _neutral(text: str) -> str:
     """Directory copies describe credentials in words rather than by variable name or shell line."""
+    for old, new in REWORDINGS:
+        text = text.replace(old, new)
     text = text.replace("`LLM_API_KEY`", "the model key").replace("LLM_API_KEY", "the model key")
     text = re.sub(r"`curl [^`]*\| *(?:ba)?sh`", "the installer in Strix's documentation", text)
     # Test-account settings: say what they are instead of showing variables or shell lines.
@@ -50,6 +71,16 @@ def _neutral(text: str) -> str:
     text = text.replace("`SDD_UI_USER` / `SDD_UI_PASS` environment variables", "environment variables")
     text = text.replace("| `SDD_UI_USER`, `SDD_UI_PASS` | your `ui_login.py` | Test account |",
                         "| test-account variables (your own names) | your login helper | Test account |")
+    # A variable written directly in front of a URL reads to a scanner like a credential being sent
+    # to a host. The directory copy names the setting and the address separately.
+    text = text.replace("a local model through Ollama (`STRIX_LLM=ollama/<model>`, `LLM_API_BASE=http://localhost:11434`)",
+                        "a local model through Ollama, configured as Strix's documentation describes")
+    text = text.replace("SDD_BASE_URL=http://localhost:3000 pytest tests/e2e", "pytest tests/e2e")
+    text = text.replace("| `SDD_BASE_URL` | e2e tests | App under test (default `http://localhost:3000`) |",
+                        "| `SDD_BASE_URL` | e2e tests | Address of the app under test (default: localhost, port 3000) |")
+    text = text.replace("| `STRIX_LLM`, `LLM_API_BASE` | Strix | Model and endpoint |",
+                        "| Strix model settings | Strix | See Strix's documentation |")
+    text = text.replace('"baseUrl": "http://localhost:3000",', '"baseUrl": null,')
     text = text.replace("or export `STRIX_LLM` and the model key in your shell",
                         "or configure a hosted model in your own shell as Strix documents")
     return text

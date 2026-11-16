@@ -283,6 +283,16 @@ class DirectoryPluginTests(unittest.TestCase):
             self.assertNotIn("LLM_API_KEY", text, path.name)
             self.assertNotRegex(text, r"curl [^\n]*\|\s*(ba)?sh", path.name)
             self.assertNotIn("${{ secrets.", text, path.name)
+            self.assertNotRegex(text, r"[A-Z][A-Z0-9_]{2,}=[\"']?https?://", f"{path.name}: variable in front of a URL")
+            self.assertNotRegex(text, r"\"\w+\":\s*\"https?://", f"{path.name}: setting in front of a URL")
+            self.assertNotRegex(text, r"\b(LLM_API_BASE|STRIX_LLM)\b", path.name)
+        # The directory holds a version when a file pairs a remote host with reading a credential.
+        pentest = (self.plugin / "skills" / "security-pentest" / "SKILL.md").read_text()
+        self.assertNotRegex(pentest, r"https?://")
+        for word in ("printenv", "cat .env", "environment variable"):
+            self.assertNotIn(word, pentest)
+        for path in self.plugin.rglob("*.md"):
+            self.assertNotRegex(path.read_text(), r"`https?://`", f"{path.name}: bare URL scheme reads as a host")
         entry = (self.plugin / "skills" / "spec-driven-development-by-ashish-mohanty" / "SKILL.md").read_text()
         self.assertNotIn("scripts/", entry)
         self.assertIn("Manual-Mode.md", entry)

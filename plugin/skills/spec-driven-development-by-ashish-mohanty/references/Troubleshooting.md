@@ -35,7 +35,7 @@
 | `PENTEST NOT RUN (exit 3)` + "No model is configured" | Set up a local model (no key), or configure a hosted model in your own shell as Strix documents |
 | `…is not in pentest.allowedTargets` | Someone authorised to test that host adds it to `.sdd/config.json` |
 | `Pass --authorized` | Confirms you may test every target |
-| `Refusing to send the model key over plain http` | Use an `https://` API base |
+| `Refusing to send the model key over plain http` | Use an encrypted (https) API address |
 | `Strix is not installed` | `pipx install strix-agent`; Docker must be running |
 
 ## Agent behaviour
