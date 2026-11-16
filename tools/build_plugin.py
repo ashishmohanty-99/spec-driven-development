@@ -40,8 +40,27 @@ This plugin carries documentation only. Tell the person once that the optional t
 """
 
 
+# The directory holds a version when one file both names a remote host and mentions reading a
+# credential from the environment. These rewordings keep the meaning and remove that pairing.
+REWORDINGS = [
+    ("the open-source Strix agent (https://github.com/usestrix/strix)", "the open-source Strix agent"),
+    ("The key exists only as the `LLM_API_KEY` environment variable in the user's shell or CI secret store.",
+     "The key lives only in the person's own shell or CI secret store."),
+    ('Never run `env`, `printenv`, `cat .env` or similar to "check" the configuration.',
+     "Never inspect the person's environment or secret files to check the configuration."),
+    ("Read from env by Strix only.", "Strix reads it from the person's own shell."),
+    ("a non-local `http://` API base", "an unencrypted remote API address"),
+    ("`AWS_*`, tokens and the rest are dropped", "cloud keys, tokens and the rest are dropped"),
+    ("Use an `https://` API base", "Use an encrypted (https) API address"),
+    ("ENV -->|env vars only| CLI", "ENV -->|settings only| CLI"),
+    ("CLI -->|no shell, minimal env| APP", "CLI -->|no shell, minimal environment| APP"),
+]
+
+
 def _neutral(text: str) -> str:
     """Directory copies describe credentials in words rather than by variable name or shell line."""
+    for old, new in REWORDINGS:
+        text = text.replace(old, new)
     text = text.replace("`LLM_API_KEY`", "the model key").replace("LLM_API_KEY", "the model key")
     text = re.sub(r"`curl [^`]*\| *(?:ba)?sh`", "the installer in Strix's documentation", text)
     # Test-account settings: say what they are instead of showing variables or shell lines.

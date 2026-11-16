@@ -21,20 +21,20 @@ flowchart TB
     end
     H --> CLI
     H --> AG
-    ENV -->|env vars only| CLI
+    ENV -->|settings only| CLI
     REPO -->|validated, size-bounded| CLI
     REPO -->|treated as data| AG
     WEB -->|treated as data| AG
-    CLI -->|no shell, minimal env| APP
+    CLI -->|no shell, minimal environment| APP
 ```
 
 ## Threats and controls
 
 | # | Threat | Control | Test |
 |---|---|---|---|
-| 1 | **API key leaks** through chat, a file, shell history or logs | No flag, config field or prompt accepts a key. Read from env by Strix only. Output redacted. Keyless local-model path documented first | `test_there_is_no_way_to_pass_a_key…`, `test_real_run_redacts_key…` |
-| 2 | **Key sent in clear text** | Refuses a key with a non-local `http://` API base, or a base URL with embedded credentials | `test_model_env_rules` |
-| 3 | **Unrelated secrets reach child processes** | Tests and scans start with an allow-listed environment; `AWS_*`, tokens and the rest are dropped | `test_real_run_redacts_key_and_limits_environment` |
+| 1 | **API key leaks** through chat, a file, shell history or logs | No flag, config field or prompt accepts a key. Strix reads it from the person's own shell. Output redacted. Keyless local-model path documented first | `test_there_is_no_way_to_pass_a_key…`, `test_real_run_redacts_key…` |
+| 2 | **Key sent in clear text** | Refuses a key with an unencrypted remote API address, or a base URL with embedded credentials | `test_model_env_rules` |
+| 3 | **Unrelated secrets reach child processes** | Tests and scans start with an allow-listed environment; cloud keys, tokens and the rest are dropped | `test_real_run_redacts_key_and_limits_environment` |
 | 4 | **Secrets committed** in specs, tests, config or agent files | `sdd verify` and `sdd audit` detect token shapes, credential assignments, JWTs and credentials in URLs, and report the location, never the value. `init` adds `.env`, keys and scan output to `.gitignore` | `test_verify_and_audit_fail_on_committed_secret`, `test_06_common_credential_forms_are_detected_without_false_positives`, `test_07_file_cap_does_not_hide_secrets_or_tests_in_large_repositories` |
 | 5 | **Path traversal** via feature names or config | Feature names are strict kebab-case. Every path is resolved and confined to the project root | `test_feature_names_cannot_traverse`, `test_config_cannot_redirect_outside_root` |
 | 6 | **Symlink and hard-link attacks** on files the tool writes | Never writes through a symlink or a hard link; scans never follow symlinks | `test_safe_join_and_symlink_writes`, `test_init_does_not_write_through_symlinked_instruction_file`, `test_24_hard_links_sensitive_files_and_name_coverage` |

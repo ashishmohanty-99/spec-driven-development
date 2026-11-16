@@ -3,6 +3,7 @@
 ## 2.2.2
 
 ### Fixed
+- The directory build's `security-pentest` skill and Security Model page no longer pair a remote address with wording about reading a key from the environment, which the directory's scan holds for review.
 - The directory build (`plugin/`) no longer writes a setting directly in front of a URL (for example a local model endpoint or the app's base address), which the directory's scan reads as a credential being sent to a host.
 
 ## 2.2.1
