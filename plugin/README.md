@@ -19,8 +19,8 @@ Documentation only: the entry skill, fifteen phase skills, slash commands, two r
 templates and reference pages. It contains no scripts and reads no credentials.
 
 The checks can be applied by hand (see `skills/spec-driven-development-by-ashish-mohanty/references/Manual-Mode.md`) or by an optional
-open-source command-line tool that a person may choose to install from the project's repository:
-https://github.com/ashishmohanty-99/spec-driven-development
+open-source command-line tool that a person may choose to install from the project's repository, which is
+named in this plugin's manifest (`ashishmohanty-99/spec-driven-development` on GitHub).
 
 ## You choose the checks
 

@@ -53,6 +53,8 @@ REWORDINGS = [
     ("`AWS_*`, tokens and the rest are dropped", "cloud keys, tokens and the rest are dropped"),
     ("refer to a throwaway test account or to environment variables.",
      "refer to a throwaway test account that exists only in the test environment."),
+    ("Credentials come from environment variables and a dedicated low-privilege test account.",
+     "Sign-in details for a dedicated low-privilege test account are supplied at run time, never in code."),
     ("Use an `https://` API base", "Use an encrypted (https) API address"),
     ("ENV -->|env vars only| CLI", "ENV -->|settings only| CLI"),
     ("CLI -->|no shell, minimal env| APP", "CLI -->|no shell, minimal environment| APP"),
@@ -120,8 +122,8 @@ Documentation only: the entry skill, fifteen phase skills, slash commands, two r
 templates and reference pages. It contains no scripts and reads no credentials.
 
 The checks can be applied by hand (see `skills/{NAME}/references/Manual-Mode.md`) or by an optional
-open-source command-line tool that a person may choose to install from the project's repository:
-https://github.com/ashishmohanty-99/spec-driven-development
+open-source command-line tool that a person may choose to install from the project's repository, which is
+named in this plugin's manifest (`ashishmohanty-99/spec-driven-development` on GitHub).
 
 ## You choose the checks
 

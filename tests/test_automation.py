@@ -286,6 +286,9 @@ class DirectoryPluginTests(unittest.TestCase):
             self.assertNotRegex(text, r"[A-Z][A-Z0-9_]{2,}=[\"']?https?://", f"{path.name}: variable in front of a URL")
             self.assertNotRegex(text, r"\"\w+\":\s*\"https?://", f"{path.name}: setting in front of a URL")
             self.assertNotRegex(text, r"\b(LLM_API_BASE|STRIX_LLM)\b", path.name)
+        # Across the whole plugin, no document names a remote address: with none, nothing can be "sent".
+        for path in self.plugin.rglob("*.md"):
+            self.assertNotRegex(path.read_text(), r"https?://(?!localhost)", f"{path.name}: remote URL")
         # The directory holds a version when a file pairs a remote host with reading a credential.
         pentest = (self.plugin / "skills" / "security-pentest" / "SKILL.md").read_text()
         self.assertNotRegex(pentest, r"https?://")
