@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.4
+
+### Fixed
+- The directory build's manifest no longer carries web links (author URL, homepage, repository). The directory's scan paired the author link with the Security Model page's discussion of credentials and held the version.
+
 ## 2.2.3
 
 ### Fixed

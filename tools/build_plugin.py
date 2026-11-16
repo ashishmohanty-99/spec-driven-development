@@ -144,8 +144,10 @@ def build(out: Path) -> Path:
     (entry / "templates").mkdir()
 
     source = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
-    manifest = {k: source[k] for k in ("name", "version", "description", "author", "homepage", "repository",
-                                       "license", "keywords")}
+    # No web addresses in the directory manifest: the directory already knows the repository from the
+    # submission, and its scan pairs any remote address with any mention of credentials in the docs.
+    manifest = {k: source[k] for k in ("name", "version", "description", "license", "keywords")}
+    manifest["author"] = {"name": source["author"]["name"]}
     manifest["icon"] = "./.claude-plugin/icon.png"
     (plugin / ".claude-plugin" / "plugin.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     shutil.copyfile(OVERRIDES / "icon.png", plugin / ".claude-plugin" / "icon.png")
