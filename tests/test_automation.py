@@ -8,7 +8,9 @@ from specpilot.security import SecurityError
 
 from .helpers import feature, sdd, tmp, write
 
-ASSETS = Path(__file__).resolve().parent.parent / "specpilot" / "assets"
+ROOT = Path(__file__).resolve().parent.parent
+SKILL = ROOT / "skills" / "specpilot"
+ASSETS = SKILL / "scripts" / "specpilot" / "assets"
 SPEC = ("Status: approved\n- REQ-001: a\n- REQ-002: b\n## Acceptance scenarios\n"
         '- REQ-001 — Given the user opens /login, when they click "Sign in", then the page shows "Welcome"\n')
 
@@ -140,41 +142,55 @@ if __name__ == "__main__":
 
 
 class DistributionTests(unittest.TestCase):
-    """The standalone skill bundle must work with nothing installed."""
+    """skills/specpilot/ is the product: it must be a valid skill and work when copied anywhere."""
 
-    def test_skill_bundle_builds_and_runs_standalone(self):
-        import subprocess
-        import sys
-        import zipfile
-
-        sys.path.insert(0, str(ASSETS.parent.parent / "tools"))
-        import build_skill
-
-        out = tmp()
-        archive = build_skill.build(out)
-        names = zipfile.ZipFile(archive).namelist()
-        self.assertIn("specpilot/SKILL.md", names)
-        self.assertIn("specpilot/scripts/sdd.py", names)
-        self.assertIn("specpilot/references/Security-Model.md", names)
-        self.assertFalse([n for n in names if "__pycache__" in n or not n.startswith("specpilot/")])
-        self.assertEqual(archive.read_bytes(), build_skill.build(tmp()).read_bytes(), "build is reproducible")
-
-        fm = AssetLintTests.front(out / "specpilot" / "SKILL.md")
+    def test_skill_folder_is_a_valid_self_contained_skill(self):
+        fm = AssetLintTests.front(SKILL / "SKILL.md")
         self.assertEqual(fm["name"].strip(), "specpilot")
         self.assertLessEqual(set(fm), {"name", "description", "license", "compatibility", "metadata", "allowed-tools"})
         self.assertLessEqual(len(fm["description"].strip()), 1024)
+        text = (SKILL / "SKILL.md").read_text()
+        for ref in re.findall(r"`(references/[\w-]+\.md)`", text):
+            self.assertTrue((SKILL / ref).is_file(), ref)
+        self.assertTrue((SKILL / "LICENSE").is_file())
+        self.assertEqual((SKILL / "LICENSE").read_text(), (ROOT / "LICENSE").read_text())
 
+    def test_installed_copy_runs_with_nothing_else_available(self):
+        import shutil
+        import subprocess
+        import sys
+
+        installed = tmp() / "skills" / "specpilot"  # what `npx skills add` or an unzip leaves behind
+        shutil.copytree(SKILL, installed, ignore=shutil.ignore_patterns("__pycache__"))
         project = tmp()
-        env = {"PATH": "/usr/bin:/bin"}  # no PYTHONPATH: only the bundle is importable
-        launcher = str(out / "specpilot" / "scripts" / "sdd.py")
-        run = subprocess.run([sys.executable, launcher, "--dir", str(project), "init", "--vendor"],
-                             env=env, capture_output=True, text=True, check=False)
+        env = {"PATH": "/usr/bin:/bin"}  # no PYTHONPATH: only the copy is importable
+        run = subprocess.run([sys.executable, str(installed / "scripts" / "sdd.py"), "--dir", str(project),
+                              "init", "--vendor"], env=env, capture_output=True, text=True, check=False)
         self.assertEqual(run.returncode, 0, run.stderr)
         for cmd in ("doctor", "audit", "status"):
             vendored = subprocess.run([sys.executable, ".sdd/bin/sdd.py", cmd], cwd=project, env=env,
                                       capture_output=True, text=True, check=False)
             self.assertEqual(vendored.returncode, 0, f"{cmd}: {vendored.stdout}{vendored.stderr}")
         self.assertIn("python3 .sdd/bin/sdd.py", (project / "CLAUDE.md").read_text())
+
+    def test_only_the_entry_skill_is_discoverable_at_the_top_level(self):
+        # Installers list skills/<name>/SKILL.md; the phase skills are installed per project by `sdd init`.
+        self.assertEqual([p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")], ["specpilot"])
+
+    def test_zip_for_upload_is_reproducible_and_complete(self):
+        import sys
+        import zipfile
+
+        sys.path.insert(0, str(ROOT / "tools"))
+        import build_skill
+
+        archive = build_skill.build(tmp())
+        names = zipfile.ZipFile(archive).namelist()
+        for expected in ("specpilot/SKILL.md", "specpilot/scripts/sdd.py", "specpilot/references/Security-Model.md",
+                         "specpilot/scripts/specpilot/cli.py"):
+            self.assertIn(expected, names)
+        self.assertFalse([n for n in names if "__pycache__" in n or not n.startswith("specpilot/")])
+        self.assertEqual(archive.read_bytes(), build_skill.build(tmp()).read_bytes())
 
 
 class WalkthroughRegressionTests(unittest.TestCase):
@@ -205,8 +221,8 @@ class WalkthroughRegressionTests(unittest.TestCase):
 
 class DocsTests(unittest.TestCase):
     def test_every_test_cited_in_the_security_model_exists(self):
-        root = ASSETS.parent.parent
-        cited = set(re.findall(r"`(test_[a-z0-9_]+)`", (root / "wiki" / "Security-Model.md").read_text()))
+        root = ROOT
+        cited = set(re.findall(r"`(test_[a-z0-9_]+)`", (SKILL / "references" / "Security-Model.md").read_text()))
         defined = set()
         for f in (root / "tests").glob("test_*.py"):
             defined |= set(re.findall(r"def (test_\w+)", f.read_text()))
@@ -214,6 +230,6 @@ class DocsTests(unittest.TestCase):
         self.assertEqual(sorted(cited - defined), [])
 
     def test_documented_counts_match_the_assets(self):
-        home = (ASSETS.parent.parent / "wiki" / "Home.md").read_text()
+        home = (ROOT / "wiki" / "Home.md").read_text()
         self.assertIn(f"{len(list((ASSETS / 'skills').iterdir()))} skills", home)
         self.assertIn(f"{len(list((ASSETS / 'commands').glob('*.md')))} slash commands", home)

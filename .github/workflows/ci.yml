@@ -47,5 +47,5 @@ jobs:
           python-version: "3.13"
       - run: pip install ruff bandit .
       - run: ruff check .
-      - run: bandit -r specpilot -c pyproject.toml
+      - run: bandit -r skills/specpilot/scripts/specpilot -c pyproject.toml
       - run: sdd audit

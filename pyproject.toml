@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "specpilot"
-version = "1.1.0"
+version = "1.2.0"
 description = "Codebase-aware Spec-Driven Development for the AI SDLC: skills, gates, generated regression tests and a guarded pentest step."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -20,6 +20,7 @@ sdd = "specpilot.cli:main"
 specpilot = "specpilot.cli:main"
 
 [tool.setuptools.packages.find]
+where = ["skills/specpilot/scripts"]
 include = ["specpilot*"]
 
 [tool.setuptools.package-data]
@@ -27,6 +28,7 @@ specpilot = ["assets/**/*"]
 
 [tool.ruff]
 line-length = 120
+src = ["skills/specpilot/scripts", "."]
 
 [tool.bandit]
 exclude_dirs = ["tests"]

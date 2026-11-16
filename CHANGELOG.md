@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0
+
+### Changed
+- The repository is now directly installable as a skill: `npx skills add ashishmohanty-99/spec-driven-development`. The complete skill (entry `SKILL.md`, bundled CLI, reference pages) is committed at `skills/specpilot/`, so no release or build step is needed to share it.
+- The Python package source moved to `skills/specpilot/scripts/specpilot/`; `pip install` and the `sdd` command are unchanged.
+- Reference pages moved from `wiki/` to `skills/specpilot/references/`; the wiki is published from both.
+- `tools/build_skill.py` now only zips the skill folder for upload-only hosts.
+
 ## 1.1.0
 
 ### Added

@@ -12,26 +12,22 @@ A human approves at every arrow. The `sdd` CLI checks what can be checked mechan
 
 ## Install
 
-Pick one. All three give the same process; they differ in how the `sdd` tool reaches you.
-
-**A. Standalone skill (nothing to install).** Download `specpilot-skill.zip` from the [latest release](https://github.com/ashishmohanty-99/spec-driven-development/releases/latest) and unzip it into `~/.claude/skills/` (or upload it at claude.ai → Customize → Skills). Then ask your agent: *"Set up SpecPilot in this repository."* The skill carries the CLI and copies it into your project.
-
-**B. Python package.**
+One command, for Claude Code, Cursor, Codex, Copilot, Gemini CLI and other agents that support skills:
 
 ```bash
-pipx install git+https://github.com/ashishmohanty-99/spec-driven-development
-cd your-project
-sdd init          # add --agent generic for Codex, Cursor, Copilot, Gemini
-sdd audit
+npx skills add ashishmohanty-99/spec-driven-development
 ```
 
-**C. Claude Code plugin** (skills and commands; install the package from B for the CLI).
+Then ask your agent: **"Set up SpecPilot in this repository."** The skill carries its own command-line tool (Python 3.11+, standard library only) and copies it into your project, so teammates and CI need nothing installed.
 
-```
-/plugin install specpilot --marketplace ashishmohanty-99/spec-driven-development
-```
+Other ways to get the same thing:
 
-Python 3.11+. The CLI uses the standard library only. `sdd init --vendor` copies the CLI into `.sdd/bin/` so teammates and CI need nothing installed.
+| Route | Command |
+|---|---|
+| Claude Code plugin | `/plugin install specpilot --marketplace ashishmohanty-99/spec-driven-development` |
+| Python package | `pipx install git+https://github.com/ashishmohanty-99/spec-driven-development`, then `sdd init` |
+| claude.ai upload | `python tools/build_skill.py`, then upload `dist/specpilot-skill.zip` at Customize → Skills |
+| By hand | Copy the `skills/specpilot` folder into `~/.claude/skills/` (or your agent's skills folder) |
 
 ## Use
 
@@ -57,38 +53,39 @@ sdd pentest --target . --authorized       # guarded Strix scan
 
 ## Documentation
 
-The [wiki](https://github.com/ashishmohanty-99/spec-driven-development/wiki) is the manual (source in [`wiki/`](wiki/)):
+The [wiki](https://github.com/ashishmohanty-99/spec-driven-development/wiki) is the manual (source in [`wiki/`](wiki/) and [`skills/specpilot/references/`](skills/specpilot/references/)):
 
 | Page | For |
 |---|---|
 | [Getting Started](wiki/Getting-Started.md) | Install and first feature |
-| [SDD and the AI SDLC](wiki/SDD-and-the-AI-SDLC.md) | Why the process exists |
-| [Step-by-Step Workflow](wiki/Step-by-Step-Workflow.md) | Every phase: who acts, what to check |
-| [Test Automation](wiki/Test-Automation.md) | Spec → pytest-playwright tests |
-| [Penetration Testing](wiki/Penetration-Testing.md) | Strix without exposing an API key |
-| [Security Model](wiki/Security-Model.md) | Threats, controls, tests |
-| [CLI Reference](wiki/CLI-Reference.md) · [Extending](wiki/Extending.md) · [Troubleshooting](wiki/Troubleshooting.md) | Reference |
+| [SDD and the AI SDLC](skills/specpilot/references/SDD-and-the-AI-SDLC.md) | Why the process exists |
+| [Step-by-Step Workflow](skills/specpilot/references/Step-by-Step-Workflow.md) | Every phase: who acts, what to check |
+| [Test Automation](skills/specpilot/references/Test-Automation.md) | Spec → pytest-playwright tests |
+| [Penetration Testing](skills/specpilot/references/Penetration-Testing.md) | Strix without exposing an API key |
+| [Security Model](skills/specpilot/references/Security-Model.md) | Threats, controls, tests |
+| [CLI Reference](skills/specpilot/references/CLI-Reference.md) · [Extending](skills/specpilot/references/Extending.md) · [Troubleshooting](skills/specpilot/references/Troubleshooting.md) | Reference |
 
 ## Security in one paragraph
 
-No command, config field or prompt accepts an API key. The pentest step lets Strix read `LLM_API_KEY` from your own environment, or runs keyless against a local model. Child processes get a minimal environment, never a shell. Paths are confined to the project root and never written through symlinks. Spec text cannot become code. `sdd audit` and `sdd verify` fail on committed credentials. A scan that did not run exits 3, never 0. Details and the test for each control: [Security Model](wiki/Security-Model.md). Report vulnerabilities privately: [SECURITY.md](SECURITY.md).
+No command, config field or prompt accepts an API key. The pentest step lets Strix read `LLM_API_KEY` from your own environment, or runs keyless against a local model. Child processes get a minimal environment, never a shell. Paths are confined to the project root and never written through symlinks. Spec text cannot become code. `sdd audit` and `sdd verify` fail on committed credentials. A scan that did not run exits 3, never 0. Details and the test for each control: [Security Model](skills/specpilot/references/Security-Model.md). Report vulnerabilities privately: [SECURITY.md](SECURITY.md).
 
 ## Repository layout
 
 | Path | Contents |
 |---|---|
-| `specpilot/` | CLI: `scan`, `spec` (gates), `gentests`, `regression`, `pentest`, `audit`, `security` |
-| `specpilot/assets/` | Skills, slash commands, subagents, templates, e2e connector |
-| `skill/`, `tools/build_skill.py` | Standalone skill entry point and the script that bundles it |
+| `skills/specpilot/` | **The skill.** `SKILL.md`, the bundled CLI under `scripts/`, reference pages under `references/` |
+| `skills/specpilot/scripts/specpilot/` | CLI source: `scan`, `spec` (gates), `gentests`, `regression`, `pentest`, `audit`, `security` |
+| `skills/specpilot/scripts/specpilot/assets/` | Phase skills, slash commands, subagents, templates and the e2e connector that `sdd init` installs into a project |
 | `tests/` | Unit and security regression tests (`python -m unittest`) |
-| `wiki/` | Documentation, published to the GitHub wiki |
+| `wiki/` | Home and Getting Started pages; published to the GitHub wiki together with the reference pages |
+| `tools/build_skill.py` | Zips the skill folder for upload-only hosts |
 
 ## Development
 
 ```bash
 python -m unittest
 python tools/build_skill.py     # dist/specpilot-skill.zip
-pip install ruff bandit && ruff check . && bandit -r specpilot -c pyproject.toml
+pip install ruff bandit && ruff check . && bandit -r skills/specpilot/scripts/specpilot -c pyproject.toml
 ```
 
 ## Credits

@@ -1,6 +1,6 @@
 """Security primitives used by every other module.
 
-Threat model (see wiki/Security-Model.md): SpecPilot runs inside repositories it does not
+Threat model (see references/Security-Model.md): SpecPilot runs inside repositories it does not
 control, next to an AI agent that may be steered by text in those repositories. So:
   * every path derived from input is confined to the project root, and never written through
     a symlink (path traversal, symlink clobbering);
