@@ -17,3 +17,4 @@
 - [Security Model](Security-Model)
 - [Extending](Extending)
 - [Troubleshooting](Troubleshooting)
+- [Manual Mode](Manual-Mode)
