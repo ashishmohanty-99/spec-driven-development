@@ -11,7 +11,7 @@ Implement exactly one task at a time. Tests are the proof, and they name the req
 ## Per-task loop
 1. **Pick** the next unchecked task whose dependencies are done. State it and its REQ ids.
 2. **Load only needed context**: the task, the relevant spec requirements, the touched files. Not the whole repo.
-3. **RED.** Write a failing test that expresses the acceptance criterion. Put the requirement id in the test name or a comment tag, e.g. `it('REQ-003: rejects expired token')`. Run it; see it fail for the right reason.
+3. **RED.** Write a failing test that expresses the acceptance criterion. Put the requirement id in the test name or a comment tag, e.g. `def test_req_003_rejects_expired_token()`, and put the feature name in the test file's path (`tests/<feature>/…` or `test_<feature>.py`) because ids repeat across features. Run it; see it fail for the right reason.
 4. **GREEN.** Write the least code that passes. Follow conventions recorded in the profile.
 5. **Refactor** only inside the task's files, with tests green.
 6. **Prove.** Run the task's Verify command plus the profile's lint/typecheck/test commands. Read the output; do not assume.

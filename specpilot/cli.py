@@ -12,7 +12,7 @@ from .installer import AGENTS, init, write_profile
 from .pentest import NOT_RUN, SCAN_MODES, SEVERITIES, pentest
 from .regression import regression
 from .security import SecurityError, redact
-from .spec import list_features, new_feature, phase_of, verify_feature
+from .spec import e2e_dir, invalid_feature_dirs, list_features, new_feature, phase_of, verify_feature
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -67,7 +67,10 @@ def main(argv: list[str] | None = None) -> int:
         return _dispatch(args, root, parser)
     except SecurityError as exc:
         print(f"sdd: {redact(str(exc))}", file=sys.stderr)
-        return 1
+        return NOT_RUN if args.command == "pentest" else 1
+    except (OSError, ValueError, TypeError, AttributeError) as exc:  # bad input must not print a traceback
+        print(f"sdd: {type(exc).__name__}: {redact(str(exc))}", file=sys.stderr)
+        return NOT_RUN if args.command == "pentest" else 1
 
 
 def _dispatch(args, root: Path, parser) -> int:
@@ -109,6 +112,8 @@ def _dispatch(args, root: Path, parser) -> int:
         features = list_features(root)
         if not features:
             print("No features yet. Start one: sdd new <feature-name>")
+        for name in invalid_feature_dirs(root):
+            print(f"{name:<28} INVALID NAME: rename to kebab-case so the gates can check it")
         for f in features:
             r = verify_feature(root, f)
             st = r["stats"]
@@ -119,10 +124,14 @@ def _dispatch(args, root: Path, parser) -> int:
 
     if cmd == "verify":
         targets = [args.feature] if args.feature else list_features(root)
-        if not targets:
+        bad = 0
+        if not args.feature:
+            for name in invalid_feature_dirs(root):
+                print(f"\nFAIL {name}\n   ERROR  feature directory name is not kebab-case, so it cannot be checked")
+                bad += 1
+        if not targets and not bad:
             print("No features to verify.")
             return 0
-        bad = 0
         for f in targets:
             r = verify_feature(root, f, args.strict)
             st = r["stats"]
@@ -140,7 +149,7 @@ def _dispatch(args, root: Path, parser) -> int:
         print(f"{'Created' if r['created'] else 'Updated'} {r['file'].relative_to(root)}")
         if r["missing"]:
             print(f"No Given/When/Then scenario yet for: {', '.join(r['missing'])} (add them in spec.md section 6)")
-        print("Run: pip install pytest-playwright && playwright install chromium && pytest tests/e2e")
+        print(f"Run: pip install pytest-playwright && playwright install chromium && pytest {r['e2eDir']}")
         return 0
 
     if cmd == "regression":
@@ -176,7 +185,7 @@ def _dispatch(args, root: Path, parser) -> int:
                   (".sdd/constitution.md", (root / ".sdd/constitution.md").is_file()),
                   ("skills installed", any((root / d / "using-sdd/SKILL.md").is_file()
                                            for d in (".claude/skills", ".agents/skills"))),
-                  ("e2e connector", (root / "tests/e2e/ui_connector.py").is_file())]
+                  ("e2e connector", (e2e_dir(root) / "ui_connector.py").is_file())]
         for name, ok in checks:
             print(f"{'ok  ' if ok else 'MISSING'} {name}")
         cons = (root / ".sdd/constitution.md")

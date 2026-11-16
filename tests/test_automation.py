@@ -51,6 +51,13 @@ class GenTestsTests(unittest.TestCase):
         feature(self.r, spec=SPEC, plan="# p", tasks="- [x] T-001 x (covers: REQ-001, REQ-002)")
         self.assertEqual(sdd(self.r, "verify", "f1", "--strict")[0], 1)
         self.assertEqual(sdd(self.r, "gen-tests", "f1")[0], 0)
+        # REQ-001 has a real scenario; REQ-002 only has a placeholder stub, which proves nothing.
+        code, out = sdd(self.r, "verify", "f1", "--strict")
+        self.assertEqual(code, 1)
+        self.assertIn("REQ-002 has completed task(s) but no test file names it", out)
+        self.assertNotIn("REQ-001 has completed", out)
+        feature(self.r, spec=SPEC + '- REQ-002 — Given the user opens /a, when they click "B", then the page shows "C"\n')
+        sdd(self.r, "gen-tests", "f1")
         self.assertEqual(sdd(self.r, "verify", "f1", "--strict")[0], 0)
 
 
@@ -194,3 +201,19 @@ class WalkthroughRegressionTests(unittest.TestCase):
         text = (self.r / "tests/e2e/conftest.py").read_text()
         self.assertIn("pytest-playwright is not installed", text)
         compile(text, "conftest.py", "exec")
+
+
+class DocsTests(unittest.TestCase):
+    def test_every_test_cited_in_the_security_model_exists(self):
+        root = ASSETS.parent.parent
+        cited = set(re.findall(r"`(test_[a-z0-9_]+)`", (root / "wiki" / "Security-Model.md").read_text()))
+        defined = set()
+        for f in (root / "tests").glob("test_*.py"):
+            defined |= set(re.findall(r"def (test_\w+)", f.read_text()))
+        self.assertGreater(len(cited), 20)
+        self.assertEqual(sorted(cited - defined), [])
+
+    def test_documented_counts_match_the_assets(self):
+        home = (ASSETS.parent.parent / "wiki" / "Home.md").read_text()
+        self.assertIn(f"{len(list((ASSETS / 'skills').iterdir()))} skills", home)
+        self.assertIn(f"{len(list((ASSETS / 'commands').glob('*.md')))} slash commands", home)

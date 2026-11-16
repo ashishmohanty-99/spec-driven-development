@@ -51,5 +51,5 @@ Yellow is a human decision, blue is agent work that stops at a human gate, green
 ## The three rules
 
 1. **No spec, no code.** A human approves the spec, the plan and the task list. The agent never approves its own work.
-2. **Everything is traceable.** `REQ-001` → `T-001` → a test that names `REQ-001`. `sdd verify` fails the build when a link is missing.
+2. **Everything is traceable.** `REQ-001` → `T-001` → a test that names `REQ-001`. `sdd verify` fails when a requirement has no task or a task has no requirement; with `--strict` (use it in CI) it also fails when a finished requirement has no real test.
 3. **Secrets stay out.** No key in chat, specs, config or commits. `sdd audit` checks, and the pentest step reads its model settings from your environment only.

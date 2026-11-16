@@ -39,7 +39,9 @@ def test_req_001_1(page):
     )
 ```
 
-No selectors appear in the test. Requirements without a scenario become visible gaps: skipped locally, **failed** under `--strict`.
+No selectors appear in the test. Requirements without a scenario become visible gaps: skipped locally, **failed** under `--strict`, and never counted as proof by `sdd verify`.
+
+If `tests/e2e/test_<feature>.py` already exists and was written by hand, `gen-tests` refuses to touch it.
 
 ## 3. Built-in phrases (work with no code)
 
@@ -98,6 +100,10 @@ flowchart TD
     X -->|yes| OK([exit 0])
     X -->|no| KO([exit 1])
 ```
+
+## Requirement ids across features
+
+Every feature starts at `REQ-001`. When two features share an id, a test proves it only for the feature named in its path: `tests/e2e/test_login_lockout.py`, or any file under a folder called `login-lockout` or `login_lockout`. Generated tests follow this automatically; follow it for hand-written ones.
 
 ## Regenerating
 

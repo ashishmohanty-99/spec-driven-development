@@ -97,7 +97,7 @@ flowchart TD
 |---|---|---|
 | 0 | Scan ran, nothing at or above `--fail-on` | Yes |
 | 2 | Scan ran, findings | No: triage |
-| 1 | Scan failed to complete | No |
+| 1 | Scan failed, timed out, or ended in any way other than clean or findings | No |
 | **3** | **Scan did not run** | **No. Unknown is not clean** |
 
 ## Scanning a deployed environment
@@ -114,10 +114,12 @@ sdd pentest --target https://staging.example.com --authorized
 
 The agent is instructed never to edit this list. Scanning systems you do not own is illegal in most places.
 
+> **Test accounts.** If the scan needs to log in, do not put a password in `--instruction`: command-line arguments are visible to other users of the machine. Point the instruction at environment variables or a throwaway account that exists only in the test environment.
+
 ## After the scan
 
 1. Reports are in `strix_runs/` (git-ignored: they describe how to attack your app).
-2. A small record without secrets is written to `.sdd/security/pentest-<time>.json`.
+2. A small record is written to `.sdd/security/pentest-<time>.json`: time, result, scan mode, model name and each target without its query string. The instruction text is never stored.
 3. In your agent: `/sdd-pentest` to triage. Each finding is fixed (new `REQ-` + regression test), risk-accepted by a named person, or shown to be a false positive.
 4. The disposition goes into `verification.md`. `/sdd-ship` requires it for security-relevant changes.
 

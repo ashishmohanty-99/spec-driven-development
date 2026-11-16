@@ -5,8 +5,8 @@ import json
 from pathlib import Path
 
 from .scan import render_profile, scan
-from .security import SecurityError, one_line, read_text, write_text
-from .spec import ASSETS, DEFAULT_CONFIG
+from .security import SecurityError, one_line, read_text, safe_join, write_text
+from .spec import ASSETS, DEFAULT_CONFIG, load_config
 
 BEGIN = "<!-- SPECPILOT:BEGIN (managed block; edit outside it) -->"
 END = "<!-- SPECPILOT:END -->"
@@ -26,6 +26,8 @@ def copy_tree(root: Path, src: Path, dest_rel: str, force: bool) -> int:
             continue
         target = Path(root) / dest_rel / item.relative_to(src)
         if target.exists() and not force:
+            continue
+        if force and read_text(target) == item.read_text(encoding="utf-8"):
             continue
         write_text(root, target, item.read_text(encoding="utf-8"))
         written += 1
@@ -80,7 +82,7 @@ def ensure_gitignore(root: Path) -> list[str]:
 
 
 LAUNCHER = '''#!/usr/bin/env python3
-"""Project-local SpecPilot launcher. Created by `sdd init --vendor`; refresh with `--vendor --force`."""
+"""Project-local SpecPilot launcher. Created and refreshed by `sdd init --vendor`."""
 import sys
 from pathlib import Path
 
@@ -91,19 +93,32 @@ sys.exit(main())
 '''
 
 
-def vendor_cli(root: Path, force: bool) -> int:
-    """Copy this package into .sdd/bin so the project (and its CI) needs no installation."""
+def vendor_cli(root: Path) -> int:
+    """Copy this package into .sdd/bin so the project (and its CI) needs no installation.
+
+    The vendored copy is always replaced as a whole: a half-upgraded CLI is worse than either version.
+    """
     package = Path(__file__).resolve().parent
-    written = copy_tree(root, package, ".sdd/bin/specpilot", force)
-    launcher = Path(root) / ".sdd" / "bin" / "sdd.py"
-    if force or not launcher.exists():
-        write_text(root, launcher, LAUNCHER)
-        written += 1
-    return written
+    written = copy_tree(root, package, ".sdd/bin/specpilot", force=True)
+    write_text(root, Path(root) / ".sdd" / "bin" / "sdd.py", LAUNCHER)
+    return written + 1
+
+
+def vendored_cli_is_ours(root: Path) -> bool:
+    """True only if .sdd/bin holds an unmodified copy of this package and launcher."""
+    base = Path(root) / ".sdd" / "bin"
+    if read_text(base / "sdd.py") != LAUNCHER:
+        return False
+    package = Path(__file__).resolve().parent
+    for item in package.rglob("*.py"):
+        if "__pycache__" not in item.parts and \
+                read_text(base / "specpilot" / item.relative_to(package)) != item.read_text(encoding="utf-8"):
+            return False
+    return True
 
 
 def cli_invocation(root: Path) -> str:
-    return "python3 .sdd/bin/sdd.py" if (Path(root) / ".sdd" / "bin" / "sdd.py").is_file() else "sdd"
+    return "python3 .sdd/bin/sdd.py" if vendored_cli_is_ours(root) else "sdd"
 
 
 def write_profile(root: Path) -> dict:
@@ -120,6 +135,11 @@ def init(root: Path, agent: str = "claude", force: bool = False, vendor: bool = 
     root = Path(root).resolve()
     target = AGENTS[agent]
     log: list[str] = []
+    cfg_existing = load_config(root)  # fails early on an untrustworthy config
+    for sub in (".sdd", ".sdd/specs", ".sdd/extensions", ".sdd/adr"):
+        path = root / sub
+        if path.is_symlink() or (path.exists() and not path.is_dir()):
+            raise SecurityError(f"{sub} exists but is not a regular directory")
     profile = write_profile(root)
     langs = "/".join(l["name"] for l in profile["languages"][:3]) or "no code detected"
     log.append(f"profiled codebase ({profile['fileCount']} files, {langs})")
@@ -134,13 +154,15 @@ def init(root: Path, agent: str = "claude", force: bool = False, vendor: bool = 
         data["commands"]["test"] = profile["commands"].get("test")
         write_text(root, cfg, json.dumps(data, indent=2) + "\n")
         log.append("wrote .sdd/config.json")
+    # --force refreshes what SpecPilot owns (skills, commands, subagents, templates). Files the
+    # team edits (constitution, extensions, the e2e connector, config, specs) are never overwritten.
     cons = sdd / "constitution.md"
-    if force or not cons.exists():
+    if not cons.exists():
         text = (ASSETS / "templates" / "constitution.md").read_text(encoding="utf-8")
         write_text(root, cons, text.replace("{{PROJECT}}", profile["name"]))
         log.append("wrote draft .sdd/constitution.md (a human ratifies it)")
     copy_tree(root, ASSETS / "templates", ".sdd/templates", force)
-    copy_tree(root, ASSETS / "extensions", ".sdd/extensions", force)
+    copy_tree(root, ASSETS / "extensions", ".sdd/extensions", force=False)
 
     n = copy_tree(root, ASSETS / "skills", target["skills"], force)
     log.append(f"installed skills -> {target['skills']} ({n} files written)")
@@ -150,9 +172,12 @@ def init(root: Path, agent: str = "claude", force: bool = False, vendor: bool = 
     if target["agents"]:
         copy_tree(root, ASSETS / "agents", target["agents"], force)
         log.append(f"installed subagents -> {target['agents']}")
-    if copy_tree(root, ASSETS / "e2e", "tests/e2e", force):
-        log.append("wrote tests/e2e/ui_connector.py and conftest.py (connect them to your UI)")
-    if vendor and vendor_cli(root, force):
+    e2e = cfg_existing["e2eDir"]
+    safe_join(root, e2e)
+    if copy_tree(root, ASSETS / "e2e", e2e, force=False):
+        log.append(f"wrote {e2e}/ui_connector.py and conftest.py (connect them to your UI)")
+    if vendor:
+        vendor_cli(root)
         log.append("vendored the CLI -> .sdd/bin (run it with: python3 .sdd/bin/sdd.py)")
     block = managed_block(profile, agent, cli_invocation(root))
     log.append(f"{upsert_block(root, target['instr'], block)} {target['instr']} managed block")

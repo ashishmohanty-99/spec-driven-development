@@ -20,29 +20,41 @@ FEATURE_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 
 # File names whose contents must never be read, printed or copied.
 SENSITIVE_NAME = re.compile(
-    r"(^|/)(\.env(\..+)?|.*\.pem|.*\.key|.*\.p12|.*\.pfx|id_(rsa|dsa|ecdsa|ed25519)[^/]*|"
-    r"\.npmrc|\.pypirc|\.netrc|.*credentials.*\.json|.*secrets?\.(ya?ml|json|toml))$",
+    r"(^|/)(\.env(\..+)?|.*\.pem|.*\.key|.*\.p12|.*\.pfx|.*\.jks|.*\.keystore|.*\.tfvars|"
+    r"id_(rsa|dsa|ecdsa|ed25519)[^/]*|\.npmrc|\.pypirc|\.netrc|\.htpasswd|\.git-credentials|"
+    r"kubeconfig|.*credentials.*\.json|.*service[_-]?account.*\.json|.*secrets?\.(ya?ml|json|toml))$"
+    r"|(^|/)\.aws/credentials$|(^|/)\.docker/config\.json$|(^|/)\.kube/config$",
     re.IGNORECASE,
 )
-SENSITIVE_OK_SUFFIX = (".example", ".sample", ".template", ".dist")
+SENSITIVE_OK_SUFFIX = (".example", ".sample", ".template", ".dist", ".pub")
 
-# Patterns for credentials that must not appear in committed SDD artifacts.
-SECRET_PATTERNS = [
-    ("private key", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
+# Token shapes: unambiguous enough to redact from any output as well as to report.
+TOKEN_PATTERNS = [
+    ("private key", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY(?: BLOCK)?-----")),
     ("AWS access key", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
     ("GitHub token", re.compile(r"\bgh[pousr]_[A-Za-z0-9]{36,}\b")),
+    ("GitLab token", re.compile(r"\bglpat-[A-Za-z0-9_-]{20,}\b")),
     ("Slack token", re.compile(r"\bxox[abprs]-[A-Za-z0-9-]{10,}\b")),
     ("API key (sk- style)", re.compile(r"\bsk-[A-Za-z0-9_-]{20,}\b")),
     ("Google API key", re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b")),
+    ("JSON web token", re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b")),
+    ("credentials in a URL", re.compile(r"\b[a-z][a-z0-9+.-]*://[^/\s:@]+:[^/\s:@]{6,}@")),
+]
+_NOT_A_VALUE = r"(?!\$|<|\{|your|xxx|\*|changeme|example|placeholder|redacted|none\b|null\b|true\b|false\b)"
+# Context-dependent: a credential-like name assigned a literal value.
+ASSIGNMENT_PATTERNS = [
     (
         "hard-coded credential",
         re.compile(
-            r"(?i)\b(?:llm_api_key|api[_-]?key|secret|passw(?:or)?d|token)\b\s*[:=]\s*"
-            r"[\"']?(?!\$|<|\{|your|xxx|\*|changeme|example|os\.environ|process\.env)"
-            r"[A-Za-z0-9_\-/+=.]{16,}"
+            r"(?i)(?<![A-Za-z0-9])[\"']?[A-Za-z0-9_.-]*"
+            r"(?:api[_-]?key|secret|passw(?:or)?d|passwd|token|private[_-]?key|access[_-]?key)"
+            r"[A-Za-z0-9_-]*[\"']?\s*[:=]\s*"
+            r"(?:[\"']" + _NOT_A_VALUE + r"[^\"'\s]{12,}[\"']"  # quoted literal
+            r"|" + _NOT_A_VALUE + r"(?=[A-Za-z0-9_\-/+=!@#%^*]*\d)[A-Za-z0-9_\-/+=!@#%^*]{16,})"  # bare literal
         ),
     ),
 ]
+SECRET_PATTERNS = TOKEN_PATTERNS + ASSIGNMENT_PATTERNS
 
 # Environment variables whose values are secrets: redacted from output, never logged.
 SECRET_ENV = ("LLM_API_KEY", "PERPLEXITY_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY")
@@ -101,9 +113,21 @@ def write_text(root: Path, path: Path, content: str) -> Path:
         cur = cur / part
         if cur.is_symlink():
             raise SecurityError(f"refusing to write through a symlink: {cur}")
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(content, encoding="utf-8")
+    if target.exists():
+        if not target.is_file():
+            raise SecurityError(f"refusing to overwrite a non-file: {rel}")
+        if target.stat().st_nlink > 1:  # a hard link could alias a file outside the project
+            raise SecurityError(f"refusing to write through a hard link: {rel}")
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8")
+    except OSError as exc:
+        raise SecurityError(f"cannot write {rel}: {exc.strerror or exc}") from exc
     return target
+
+
+def has_control_chars(text: str) -> bool:
+    return any(ch.isspace() or not ch.isprintable() for ch in text)
 
 
 def one_line(text: str, limit: int = 200) -> str:
@@ -119,7 +143,7 @@ def redact(text: str, env: dict | None = None) -> str:
         value = env.get(name)
         if value and len(value) >= 6:
             text = text.replace(value, "***REDACTED***")
-    for _label, pattern in SECRET_PATTERNS[:6]:
+    for _label, pattern in TOKEN_PATTERNS:
         text = pattern.sub("***REDACTED***", text)
     return text
 

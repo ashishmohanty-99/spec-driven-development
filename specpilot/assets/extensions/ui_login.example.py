@@ -1,4 +1,4 @@
-"""Copy to .sdd/extensions/ui_login.py (git-ignored by `sdd init`) and adapt to your login form.
+"""Copy to .sdd/extensions/ui_login.py, adapt it to your login form, and commit it.
 
 Credentials come from environment variables only. Use a dedicated low-privilege test account.
 """
