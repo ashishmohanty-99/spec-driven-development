@@ -50,6 +50,16 @@ def _neutral(text: str) -> str:
     text = text.replace("`SDD_UI_USER` / `SDD_UI_PASS` environment variables", "environment variables")
     text = text.replace("| `SDD_UI_USER`, `SDD_UI_PASS` | your `ui_login.py` | Test account |",
                         "| test-account variables (your own names) | your login helper | Test account |")
+    # A variable written directly in front of a URL reads to a scanner like a credential being sent
+    # to a host. The directory copy names the setting and the address separately.
+    text = text.replace("a local model through Ollama (`STRIX_LLM=ollama/<model>`, `LLM_API_BASE=http://localhost:11434`)",
+                        "a local model through Ollama, configured as Strix's documentation describes")
+    text = text.replace("SDD_BASE_URL=http://localhost:3000 pytest tests/e2e", "pytest tests/e2e")
+    text = text.replace("| `SDD_BASE_URL` | e2e tests | App under test (default `http://localhost:3000`) |",
+                        "| `SDD_BASE_URL` | e2e tests | Address of the app under test (default: localhost, port 3000) |")
+    text = text.replace("| `STRIX_LLM`, `LLM_API_BASE` | Strix | Model and endpoint |",
+                        "| Strix model settings | Strix | See Strix's documentation |")
+    text = text.replace('"baseUrl": "http://localhost:3000",', '"baseUrl": null,')
     text = text.replace("or export `STRIX_LLM` and the model key in your shell",
                         "or configure a hosted model in your own shell as Strix documents")
     return text

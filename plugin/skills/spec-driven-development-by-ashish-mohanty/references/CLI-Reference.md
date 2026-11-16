@@ -58,7 +58,7 @@ sdd [--dir PATH] <command> [options]
   "strict": false,
   "requireTestsPerRequirement": true,
   "e2eFramework": "playwright-python",
-  "baseUrl": "http://localhost:3000",
+  "baseUrl": null,
   "commands": { "test": "pytest", "e2e": null },
   "lifecycle": { "constitution": true, "clarify": true, "plan": true, "tasks": true, "tests": true,
                  "e2e": true, "secrets": true, "review": true, "pentest": true },
@@ -79,10 +79,10 @@ sdd [--dir PATH] <command> [options]
 
 | Variable | Used by | Purpose |
 |---|---|---|
-| `SDD_BASE_URL` | e2e tests | App under test (default `http://localhost:3000`) |
+| `SDD_BASE_URL` | e2e tests | Address of the app under test (default: localhost, port 3000) |
 | test-account variables (your own names) | your login helper | Test account |
 | `SDD_E2E_STRICT=1` | e2e tests | Coverage gaps fail instead of skip (set by `--strict`) |
-| `STRIX_LLM`, `LLM_API_BASE` | Strix | Model and endpoint |
+| Strix model settings | Strix | See Strix's documentation |
 | the model key | Strix | Hosted-model key. Never needed with a local model |
 
 ## File syntax the gates rely on

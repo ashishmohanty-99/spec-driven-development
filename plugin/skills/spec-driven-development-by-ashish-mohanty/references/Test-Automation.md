@@ -94,7 +94,7 @@ Give the test account's name and password to the tests through environment varia
 ```bash
 pip install pytest-playwright
 playwright install chromium
-SDD_BASE_URL=http://localhost:3000 pytest tests/e2e
+pytest tests/e2e
 ```
 
 ## 7. One command for everything

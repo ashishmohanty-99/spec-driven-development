@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.2
+
+### Fixed
+- The directory build (`plugin/`) no longer writes a setting directly in front of a URL (for example a local model endpoint or the app's base address), which the directory's scan reads as a credential being sent to a host.
+
 ## 2.2.1
 
 ### Fixed
