@@ -1,6 +1,6 @@
 ---
 name: spec-driven-development-by-ashish-mohanty
-description: Sets up and runs Spec-Driven Development (SDD) for the whole AI software lifecycle in any repository and any programming language. It reads the codebase, asks only what it cannot detect, scaffolds a proper project structure for new applications, then guides specs, plans, tasks, test-first builds, generated acceptance tests, security checks and shipping, with a human approving each step. Use when someone wants to adopt spec-driven development, start a new application properly, write a spec or plan before coding, generate tests from requirements, check that code traces back to an approved spec, or asks "what should I do next" in a repository that has a .sdd folder.
+description: "Sets up and runs Spec-Driven Development (SDD) for the whole AI software lifecycle in any repository and any programming language. It reads the codebase, asks only what it cannot detect, scaffolds a proper project structure for new applications, then guides specs, plans, tasks, test-first builds, generated acceptance tests, security checks and shipping, with a human approving each step. Use when someone wants to adopt spec-driven development, start a new application properly, write a spec or plan before coding, generate tests from requirements, check that code traces back to an approved spec, or asks \"what should I do next\" in a repository that has a .sdd folder."
 license: MIT
 ---
 

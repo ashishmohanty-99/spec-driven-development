@@ -1,5 +1,5 @@
 ---
-description: Guided setup - explains what was detected and asks only what is needed
+description: "Guided setup - explains what was detected and asks only what is needed"
 ---
 
 Invoke the `guided-setup` skill.

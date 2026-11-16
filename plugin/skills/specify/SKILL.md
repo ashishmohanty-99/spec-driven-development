@@ -1,6 +1,6 @@
 ---
 name: specify
-description: Turns an idea or change request into a structured, testable spec with permanent REQ ids, EARS-style requirements, non-goals and boundaries, grounded in the codebase profile. Use when starting a feature or significant change and no approved spec exists.
+description: "Turns an idea or change request into a structured, testable spec with permanent REQ ids, EARS-style requirements, non-goals and boundaries, grounded in the codebase profile. Use when starting a feature or significant change and no approved spec exists."
 ---
 
 # Specify

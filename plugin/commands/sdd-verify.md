@@ -1,5 +1,5 @@
 ---
-description: Prove a feature meets its spec: /sdd-verify <feature>
+description: "Prove a feature meets its spec: /sdd-verify <feature>"
 ---
 
 Invoke the `verify` skill for feature: $ARGUMENTS

@@ -1,5 +1,5 @@
 ---
-description: Create a conventional project structure for a new application in any stack: /sdd-scaffold [what you are building]
+description: "Create a conventional project structure for a new application in any stack: /sdd-scaffold [what you are building]"
 ---
 
 Invoke the `project-scaffold` skill for: $ARGUMENTS

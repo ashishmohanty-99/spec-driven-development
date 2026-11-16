@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Proves a built feature meets its spec through traceability checks, a full test run, requirement-by-requirement evidence and a five-axis code review. Use when all tasks are checked, before ship, or when asked whether a feature is really done.
+description: "Proves a built feature meets its spec through traceability checks, a full test run, requirement-by-requirement evidence and a five-axis code review. Use when all tasks are checked, before ship, or when asked whether a feature is really done."
 ---
 
 # Verify

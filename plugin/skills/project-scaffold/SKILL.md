@@ -1,6 +1,6 @@
 ---
 name: project-scaffold
-description: Creates a conventional, complete folder structure and working baseline for a new application in any language or framework, after agreeing the stack and layout with the user. Use when the repository is empty or has no application code, when the profile says project kind is greenfield, or when someone asks to start a new app, service, library or CLI from scratch.
+description: "Creates a conventional, complete folder structure and working baseline for a new application in any language or framework, after agreeing the stack and layout with the user. Use when the repository is empty or has no application code, when the profile says project kind is greenfield, or when someone asks to start a new app, service, library or CLI from scratch."
 ---
 
 # Project Scaffold

@@ -1,5 +1,5 @@
 ---
-description: Run the ship-readiness gate: /sdd-ship <feature>
+description: "Run the ship-readiness gate: /sdd-ship <feature>"
 ---
 
 Invoke the `ship` skill for feature: $ARGUMENTS

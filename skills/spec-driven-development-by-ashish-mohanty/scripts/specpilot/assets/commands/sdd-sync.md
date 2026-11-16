@@ -1,5 +1,5 @@
 ---
-description: Reconcile spec and code drift: /sdd-sync <feature>
+description: "Reconcile spec and code drift: /sdd-sync <feature>"
 ---
 
 Invoke the `spec-sync` skill for feature: $ARGUMENTS

@@ -87,10 +87,7 @@ def cart_count(page, count):
 
 Copy `.sdd/extensions/ui_login.example.py` to `ui_login.py` and adapt the form fields. Credentials come from environment variables, from a dedicated low-privilege test account:
 
-```bash
-export SDD_UI_USER=qa@example.com
-export SDD_UI_PASS=YOUR_TEST_PASSWORD   # placeholder; take the real value from your secret manager
-```
+Give the test account's name and password to the tests through environment variables of your own choosing, taken from your secret manager.
 
 ## 6. Run
 

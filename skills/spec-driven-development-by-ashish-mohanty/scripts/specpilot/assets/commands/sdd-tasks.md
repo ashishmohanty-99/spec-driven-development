@@ -1,5 +1,5 @@
 ---
-description: Break an approved plan into traceable tasks: /sdd-tasks <feature>
+description: "Break an approved plan into traceable tasks: /sdd-tasks <feature>"
 ---
 
 Invoke the `tasks` skill for feature: $ARGUMENTS

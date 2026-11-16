@@ -1,5 +1,5 @@
 ---
-description: Generate acceptance tests for a feature from its spec, in the form the project's stack runs: /sdd-gen-tests <feature>
+description: "Generate acceptance tests for a feature from its spec, in the form the project's stack runs: /sdd-gen-tests <feature>"
 ---
 
 Invoke the `test-automation` skill for feature: $ARGUMENTS

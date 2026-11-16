@@ -1,5 +1,5 @@
 ---
-description: Create the technical plan for an approved spec: /sdd-plan <feature>
+description: "Create the technical plan for an approved spec: /sdd-plan <feature>"
 ---
 
 Invoke the `plan` skill for feature: $ARGUMENTS

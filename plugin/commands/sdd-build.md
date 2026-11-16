@@ -1,5 +1,5 @@
 ---
-description: Implement the next task test-first: /sdd-build <feature>
+description: "Implement the next task test-first: /sdd-build <feature>"
 ---
 
 Invoke the `build` skill for feature: $ARGUMENTS

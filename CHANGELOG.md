@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.1
+
+### Fixed
+- Every skill, command and subagent description is now a double-quoted YAML string, so a colon or `#` inside it cannot be misread.
+- The directory build (`plugin/`) no longer shows test-account variable names or shell lines that set them; it describes them in words.
+
 ## 2.2.0
 
 ### Changed

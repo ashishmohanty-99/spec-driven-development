@@ -1,6 +1,6 @@
 ---
 name: codebase-discovery
-description: Builds and validates a factual profile of an existing codebase (stack, commands, conventions, boundaries, test setup, hotspots) so later SDD phases fit the real project. Use on first install, after major restructuring, or when the profile has unverified CONFIRM items or looks stale.
+description: "Builds and validates a factual profile of an existing codebase (stack, commands, conventions, boundaries, test setup, hotspots) so later SDD phases fit the real project. Use on first install, after major restructuring, or when the profile has unverified CONFIRM items or looks stale."
 ---
 
 # Codebase Discovery

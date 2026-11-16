@@ -1,6 +1,6 @@
 ---
 name: using-sdd
-description: Routes AI agent work through the gated Spec-Driven Development lifecycle. Use at the start of any session in a repository with a .sdd/ directory, or when deciding which SDD skill applies to the work at hand.
+description: "Routes AI agent work through the gated Spec-Driven Development lifecycle. Use at the start of any session in a repository with a .sdd/ directory, or when deciding which SDD skill applies to the work at hand."
 ---
 
 # Using SDD

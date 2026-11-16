@@ -1,6 +1,6 @@
 ---
 name: clarify
-description: Resolves open questions and ambiguities in a draft spec through targeted questions, then records decisions so the spec can be approved. Use when a spec contains [NEEDS CLARIFICATION] markers, before spec approval, or when requirements conflict or feel underspecified.
+description: "Resolves open questions and ambiguities in a draft spec through targeted questions, then records decisions so the spec can be approved. Use when a spec contains [NEEDS CLARIFICATION] markers, before spec approval, or when requirements conflict or feel underspecified."
 ---
 
 # Clarify

@@ -1,6 +1,6 @@
 ---
 name: tasks
-description: Breaks an approved plan into small ordered vertical-slice tasks, each covering named requirement ids with acceptance criteria and a verification command. Use when plan.md is approved and tasks.md does not exist.
+description: "Breaks an approved plan into small ordered vertical-slice tasks, each covering named requirement ids with acceptance criteria and a verification command. Use when plan.md is approved and tasks.md does not exist."
 ---
 
 # Tasks

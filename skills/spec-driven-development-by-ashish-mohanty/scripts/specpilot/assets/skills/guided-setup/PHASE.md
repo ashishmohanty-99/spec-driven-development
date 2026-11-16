@@ -1,6 +1,6 @@
 ---
 name: guided-setup
-description: Walks a person through setting up spec-driven development in a repository - explains in plain language what was detected, asks only the questions the tool could not answer, and lets them keep or switch off each lifecycle check with its consequence stated. Use after `sdd init`, when `sdd questions` lists open questions, when someone asks to change which checks are on, or when a new teammate asks how this repository is set up.
+description: "Walks a person through setting up spec-driven development in a repository - explains in plain language what was detected, asks only the questions the tool could not answer, and lets them keep or switch off each lifecycle check with its consequence stated. Use after `sdd init`, when `sdd questions` lists open questions, when someone asks to change which checks are on, or when a new teammate asks how this repository is set up."
 ---
 
 # Guided Setup

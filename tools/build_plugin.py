@@ -44,8 +44,14 @@ def _neutral(text: str) -> str:
     """Directory copies describe credentials in words rather than by variable name or shell line."""
     text = text.replace("`LLM_API_KEY`", "the model key").replace("LLM_API_KEY", "the model key")
     text = re.sub(r"`curl [^`]*\| *(?:ba)?sh`", "the installer in Strix's documentation", text)
-    text = re.sub(r"export SDD_UI_PASS=.*", "export SDD_UI_PASS=YOUR_TEST_PASSWORD   # placeholder; take the real "
-                  "value from your secret manager", text)
+    # Test-account settings: say what they are instead of showing variables or shell lines.
+    text = re.sub(r"```bash\nexport SDD_UI_USER=.*?```", "Give the test account's name and password to the tests through "
+                  "environment variables of your own choosing, taken from your secret manager.", text, flags=re.DOTALL)
+    text = text.replace("`SDD_UI_USER` / `SDD_UI_PASS` environment variables", "environment variables")
+    text = text.replace("| `SDD_UI_USER`, `SDD_UI_PASS` | your `ui_login.py` | Test account |",
+                        "| test-account variables (your own names) | your login helper | Test account |")
+    text = text.replace("or export `STRIX_LLM` and the model key in your shell",
+                        "or configure a hosted model in your own shell as Strix documents")
     return text
 
 

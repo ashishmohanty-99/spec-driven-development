@@ -1,6 +1,6 @@
 ---
 name: build
-description: Implements approved tasks one at a time with test-first discipline, small commits, and requirement-tagged tests. Use when tasks.md is approved and tasks remain unchecked.
+description: "Implements approved tasks one at a time with test-first discipline, small commits, and requirement-tagged tests. Use when tasks.md is approved and tasks remain unchecked."
 ---
 
 # Build
