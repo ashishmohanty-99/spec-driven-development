@@ -4,27 +4,22 @@
 
 ```mermaid
 flowchart LR
-    A([Idea]) --> B[Discover]
-    B --> C[Constitute]
-    C --> D[Specify]
-    D --> E[Clarify]
-    E --> F[Plan]
-    F --> G[Tasks]
-    G --> H[Build]
-    H --> I[Test automation]
-    I --> J[Verify]
-    J --> K[Security]
-    K --> L([Ship])
-
+    I([Idea]) --> SU[Set up<br/>once per repo]
+    SU --> SP[Spec] --> PL[Plan]
+    PL --> BT[Build track]
+    PL --> TT[Test track<br/>separate agent]
+    BT --> J[Same tests<br/>red → green]
+    TT --> J
+    J --> V[Verify] --> SE[Security gate] --> SH([Ship])
     classDef human fill:#fde68a,stroke:#b45309,color:#1f2937
     classDef agent fill:#bfdbfe,stroke:#1d4ed8,color:#1f2937
     classDef tool fill:#bbf7d0,stroke:#15803d,color:#1f2937
-    class A,L human
-    class B,C,D,E,F,G,H agent
-    class I,J,K tool
+    class I,SP,PL,SH human
+    class SU,BT,TT agent
+    class J,V,SE tool
 ```
 
-Yellow is a human decision, blue is agent work that stops at a human gate, green is checked by the `sdd` CLI.
+Yellow needs a person's approval, blue is agent work, green is checked by the `sdd` tool. The complete walkthrough with a worked example is in [Getting Started](Getting-Started).
 
 ## Pick your path
 
