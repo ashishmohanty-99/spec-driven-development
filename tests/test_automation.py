@@ -338,8 +338,8 @@ class DirectoryPluginTests(unittest.TestCase):
 class OneProcessTests(unittest.TestCase):
     """The README, Getting Started and the Step-by-Step page describe one process with one numbering."""
 
-    STEPS = ["Install the skill", "Set up the repository", "Agree team rules", "Write the spec",
-             "Clarify and approve", "Plan", "Tasks", "Build and test in parallel", "Verify", "Security gate", "Ship"]
+    STEPS = ("Install the skill", "Set up the repository", "Agree team rules", "Write the spec",
+             "Clarify and approve", "Plan", "Tasks", "Build and test in parallel", "Verify", "Security gate", "Ship")
 
     @staticmethod
     def steps(path):
@@ -357,7 +357,7 @@ class OneProcessTests(unittest.TestCase):
             return re.findall(r"^\| (\d+) \| ([^|]+) \|", path.read_text(), flags=re.MULTILINE)
         readme = table(ROOT / "README.md")[:11]
         self.assertEqual(readme, table(SKILL / "references" / "Step-by-Step-Workflow.md")[:11])
-        self.assertEqual([name.strip() for _n, name in readme], self.STEPS)
+        self.assertEqual([name.strip() for _n, name in readme], list(self.STEPS))
 
     def test_no_old_numbering_or_old_product_name_in_user_docs(self):
         docs = [ROOT / "README.md", *sorted((ROOT / "wiki").glob("*.md")), *sorted((SKILL / "references").glob("*.md")),
