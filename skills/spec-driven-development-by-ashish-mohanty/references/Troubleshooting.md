@@ -53,7 +53,7 @@
 
 | Symptom | Fix |
 |---|---|
-| Agent starts coding without a spec | Check `CLAUDE.md` / `AGENTS.md` contains the SpecPilot block; run `sdd doctor` |
+| Agent starts coding without a spec | Check `CLAUDE.md` / `AGENTS.md` contains the Spec-Driven Development block; run `sdd doctor` |
 | Agent approved its own spec | Revert the status line. Report it; the skills forbid this |
 | Agent asks for your API key | Do not give it. It is told never to ask; the command is yours to run |
 | Profile has wrong commands | Correct them under "Human-supplied context"; re-scans keep that section |

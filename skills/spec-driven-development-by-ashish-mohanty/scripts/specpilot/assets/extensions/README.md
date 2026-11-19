@@ -1,6 +1,6 @@
-# SpecPilot extensions
+# Extensions
 
-Put organisation- or team-specific behaviour here so core SpecPilot files stay unmodified and
+Put organisation- or team-specific behaviour here so the skill's own files stay unmodified and
 can be upgraded safely. Nothing in this folder is overwritten by `sdd init`.
 
 Supported extension points (all optional):

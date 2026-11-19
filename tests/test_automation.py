@@ -333,3 +333,36 @@ class DirectoryPluginTests(unittest.TestCase):
         ignored = subprocess.run([git, "ls-files", "--others", "--ignored", "--exclude-standard", "plugin", "skills"],
                                  cwd=ROOT, capture_output=True, text=True, check=False).stdout.split("\n")
         self.assertEqual([f for f in ignored if f and "__pycache__" not in f], [])
+
+
+class OneProcessTests(unittest.TestCase):
+    """The README, Getting Started and the Step-by-Step page describe one process with one numbering."""
+
+    STEPS = ("Install the skill", "Set up the repository", "Agree team rules", "Write the spec",
+             "Clarify and approve", "Plan", "Tasks", "Build and test in parallel", "Verify", "Security gate", "Ship")
+
+    @staticmethod
+    def steps(path):
+        found = re.findall(r"^#{2,3} Step (\d+)\s*[:\u00b7]\s*(.+?)(?:\s+\*\(.*\)\*)?\s*$", path.read_text(), flags=re.MULTILINE)
+        return [(int(n), name.strip()) for n, name in found]
+
+    def test_same_steps_same_numbers_everywhere(self):
+        expected = list(enumerate(self.STEPS, 1))
+        for doc in (ROOT / "README.md", ROOT / "wiki" / "Getting-Started.md",
+                    SKILL / "references" / "Step-by-Step-Workflow.md"):
+            self.assertEqual(self.steps(doc), expected, doc.name)
+
+    def test_overview_table_is_identical_in_readme_and_step_by_step(self):
+        def table(path):
+            return re.findall(r"^\| (\d+) \| ([^|]+) \|", path.read_text(), flags=re.MULTILINE)
+        readme = table(ROOT / "README.md")[:11]
+        self.assertEqual(readme, table(SKILL / "references" / "Step-by-Step-Workflow.md")[:11])
+        self.assertEqual([name.strip() for _n, name in readme], list(self.STEPS))
+
+    def test_no_old_numbering_or_old_product_name_in_user_docs(self):
+        docs = [ROOT / "README.md", *sorted((ROOT / "wiki").glob("*.md")), *sorted((SKILL / "references").glob("*.md")),
+                SKILL / "SKILL.md"]
+        for doc in docs:
+            text = doc.read_text()
+            self.assertNotRegex(text, r"\bPhase \d", f"{doc.name}: use the step numbers")
+            self.assertNotIn("SpecPilot", text, doc.name)

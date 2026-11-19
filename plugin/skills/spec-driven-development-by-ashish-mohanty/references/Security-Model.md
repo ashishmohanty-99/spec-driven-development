@@ -1,6 +1,6 @@
 # Security Model
 
-SpecPilot runs inside repositories it does not control, next to an AI agent that can be steered by text in those repositories. This page states what it defends against and how each defence is tested.
+The `sdd` tool runs inside repositories it does not control, next to an AI agent that can be steered by text in those repositories. This page states what it defends against and how each defence is tested.
 
 ## Trust boundaries
 
@@ -61,7 +61,7 @@ flowchart TB
 3. If it was committed, removing the line is not enough: the history still has it. Rotate first, then clean history.
 4. Run `sdd audit`.
 
-## What SpecPilot does not do
+## What this tool does not do
 
 - It does not make an insecure application secure. It makes sure someone looked, and that the result is recorded.
 - Secret detection is pattern-based: it catches common shapes, not every possible credential.

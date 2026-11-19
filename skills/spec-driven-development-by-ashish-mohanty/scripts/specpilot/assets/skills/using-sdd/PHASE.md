@@ -14,7 +14,7 @@ This repository follows gated Spec-Driven Development: no feature code until a h
 3. Run `sdd next`. It names the single next action for the repository and for each feature. Do not guess the phase.
 4. Run `sdd lifecycle` once per session to see which optional checks the team switched off. Skip those phases without argument, and say in your report that they were skipped by team decision. Never switch a check off yourself: only a person may, after hearing the consequence.
 
-`sdd` is the SpecPilot CLI. The managed block in `CLAUDE.md` / `AGENTS.md` states how to invoke it in this repository: plain `sdd` when it is installed, or `python3 .sdd/bin/sdd.py` when the project carries its own copy. Use that form wherever a skill says `sdd`. If neither works, work in manual mode: do each command's job by hand as the entry skill's `references/Manual-Mode.md` describes. Installing the tool is the person's decision; never install it yourself.
+`sdd` is this method's command-line tool. The managed block in `CLAUDE.md` / `AGENTS.md` states how to invoke it in this repository: plain `sdd` when it is installed, or `python3 .sdd/bin/sdd.py` when the project carries its own copy. Use that form wherever a skill says `sdd`. If neither works, work in manual mode: do each command's job by hand as the entry skill's `references/Manual-Mode.md` describes. Installing the tool is the person's decision; never install it yourself.
 
 ## Phase router
 ```
