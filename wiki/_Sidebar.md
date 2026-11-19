@@ -10,6 +10,8 @@
 - [Lifecycle Options](Lifecycle-Options)
 - [Project Structure](Project-Structure)
 - [Test Automation](Test-Automation)
+- [Parallel Delivery](Parallel-Delivery)
+- [Security Scanning](Security-Scanning)
 - [Penetration Testing](Penetration-Testing)
 
 **Reference**

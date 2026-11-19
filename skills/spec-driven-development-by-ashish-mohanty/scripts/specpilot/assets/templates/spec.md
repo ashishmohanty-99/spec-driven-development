@@ -27,6 +27,10 @@ Write each as one testable statement using EARS patterns. IDs are permanent: nev
 ## 5. Non-functional requirements
 - REQ-N01: <!-- performance, security, accessibility, observability; make them measurable -->
 
+## 5a. Security requirements (abuse cases)
+For each requirement that touches sign-in, permissions, user input, files, payments or personal data, state what must *not* be possible. Delete this line if none apply.
+- REQ-S01: <!-- If a user requests another user's data, then the service shall refuse and log the attempt -->
+
 ## 6. Acceptance scenarios
 One Given/When/Then per requirement that is not obvious from its EARS text. Reference the REQ id with a dash, never a colon: a colon (`REQ-001:`) defines a requirement.
 - REQ-001 — Given …, when …, then …

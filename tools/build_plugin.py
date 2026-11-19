@@ -118,7 +118,7 @@ Then say: **Set up spec-driven development in this repository.**
 
 ## What is in this plugin
 
-Documentation only: the entry skill, fifteen phase skills, slash commands, two reviewer subagents,
+Documentation only: the entry skill, the phase skills, slash commands, reviewer and tester subagents,
 templates and reference pages. It contains no scripts and reads no credentials.
 
 The checks can be applied by hand (see `skills/{NAME}/references/Manual-Mode.md`) or by an optional

@@ -40,6 +40,13 @@ def use_python_e2e(root: Path) -> None:
     ensure_scaffold(root, e2e_dir(root), "playwright-python")
 
 
+def without(root: Path, *checks: str) -> None:
+    """Switch lifecycle checks off for a test that is about something else."""
+    for check in checks:
+        code, out = sdd(root, "lifecycle", "skip", check, "--reason", "not the subject of this test")
+        assert code == 0, out
+
+
 def feature(root: Path, name="f1", spec=None, plan=None, tasks=None):
     for fname, body in (("spec.md", spec), ("plan.md", plan), ("tasks.md", tasks)):
         if body is not None:

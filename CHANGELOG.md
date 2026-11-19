@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.3.0
+
+### Added
+- **Security gate** (`sdd security`): four layers, each reported as clean, findings, error or NOT RUN.
+  - *Secrets*: the whole working tree and the entire git history. Uses TruffleHog or gitleaks when installed; otherwise a built-in engine with about 55 provider and generic detectors. Findings show kind, location and a fingerprint, never the value. False positives are accepted with `sdd security allow <fingerprint> --reason`, an inline `sdd:allow-secret` marker, or `security.exclude`.
+  - *Code scan* and *dependencies*: runs the analysers that fit the detected stack and are installed (semgrep, bandit, gosec, brakeman; osv-scanner, trivy, pip-audit, npm audit, cargo-audit, govulncheck, bundle-audit).
+  - `--strict` fails when an enabled layer did not run. `sdd regression` now includes the gate.
+- **Parallel delivery**: `parallel-delivery` skill, `/sdd-parallel` command and an `acceptance-tester` subagent that writes acceptance tests from the spec and the plan's new Test contract without reading the implementation.
+- **Red-first proof** (`sdd prove red|green <feature>`): records the acceptance tests failing before the code and passing after, and refuses the passing run if the test file changed in between. `sdd verify` checks the record.
+- Three new lifecycle checks: `red-first`, `code-scan`, `dependencies`.
+- Spec template: a section for security requirements written as abuse cases (`REQ-S01`).
+- `sdd next` shows the parallel test-track step when one is available.
+
+### Changed
+- `sdd audit` remains the quick self-check of the SDD setup; `sdd security` is the full gate.
+- The URL-credential detector no longer flags a variable in the password position.
+
 ## 2.2.4
 
 ### Fixed

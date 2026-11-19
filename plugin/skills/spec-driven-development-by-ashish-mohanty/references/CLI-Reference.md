@@ -21,8 +21,11 @@ sdd [--dir PATH] <command> [options]
 | `sdd verify [feature] [--strict]` | Gates: approval order, open questions, placeholders, REQ → task → test, shipped means finished, secrets | 0 ok, 1 errors |
 | `sdd gen-tests <feature>` | Generate acceptance tests from the spec's scenarios in the configured form (`.py`, `.spec.ts` or `.feature`) | 0, 1 |
 | `sdd regression [--strict] [--pentest TARGET --authorized]` | Unit tests + e2e + all gates (+ scan) | 0 ok, 1 failed |
+| `sdd prove red\|green <feature>` | Run the feature's acceptance tests and record a failing run before the code, a passing run after, with the test file unchanged | 0 recorded, 1 not recorded |
+| `sdd security [--strict] [--no-history] [--verify-live] [--pentest T --authorized]` | Security gate: secrets (repo + history), code scan, dependencies, optional pentest | 0 clean, 2 findings, 1 tool error, **3 strict and a layer did not run** |
+| `sdd security allow <fingerprint> --reason "..."` | Accept one secret finding as a false positive | 0, 1 |
 | `sdd pentest --target T [--target T2] --authorized [--fail-on LEVEL] [--scan-mode quick\|standard\|deep] [--diff-base REF] [--max-budget USD] [--instruction TEXT]` | Guarded Strix scan | 0 clean, 1 error, 2 findings, **3 not run** |
-| `sdd audit` | Security self-check of the SDD setup | 0 ok, 1 failed |
+| `sdd audit` | Quick self-check of the SDD setup itself (config, ignore rules, CI, agent files) | 0 ok, 1 failed |
 | `sdd doctor` | Installation health | 0, 1 |
 
 ## Slash commands (in your agent)
@@ -42,6 +45,9 @@ sdd [--dir PATH] <command> [options]
 | `/sdd-gen-tests <feature>` | Test automation |
 | `/sdd-regression` | Verify |
 | `/sdd-verify <feature>` | Verify |
+| `/sdd-parallel <feature>` | Build + test on two tracks |
+| `/sdd-prove <red\|green> <feature>` | Red-first proof |
+| `/sdd-security` | Security |
 | `/sdd-pentest <target>` | Security |
 | `/sdd-audit` | Security |
 | `/sdd-ship <feature>` | Ship |
@@ -61,8 +67,10 @@ sdd [--dir PATH] <command> [options]
   "baseUrl": null,
   "commands": { "test": "pytest", "e2e": null },
   "lifecycle": { "constitution": true, "clarify": true, "plan": true, "tasks": true, "tests": true,
-                 "e2e": true, "secrets": true, "review": true, "pentest": true },
+                 "e2e": true, "red-first": true, "secrets": true, "code-scan": true, "dependencies": true,
+                 "review": true, "pentest": true },
   "skipped": {},
+  "security": { "exclude": ["tests/fixtures/"], "history": true, "engine": "auto" },
   "envPassthrough": ["DATABASE_URL"],
   "pentest": { "allowedTargets": ["staging.example.com"], "failOn": "high", "scanMode": "quick" }
 }
@@ -70,6 +78,7 @@ sdd [--dir PATH] <command> [options]
 
 - `commands` run without a shell. Pipes and `&&` are not interpreted; use a script or Makefile target. A path such as `./scripts/test.sh` is relative to the project. `e2e: null` means the framework's default (`pytest <e2eDir>` or `npx playwright test <e2eDir>`); for Gherkin, set it to your Cucumber runner's command.
 - `e2eFramework` is `playwright-python`, `playwright-ts` or `gherkin`; unset means detect from the codebase.
+- `security.exclude` lists path prefixes the secret scan skips; `security.engine` is `auto`, `trufflehog`, `gitleaks` or `builtin`.
 - `lifecycle` and `skipped` are written by `sdd lifecycle`; edit them through that command so the reason is recorded. A command that cannot start fails the run.
 - A config file that is not valid JSON, or has a value of the wrong type, stops every command with an error.
 - `envPassthrough` lists variable **names** your tests need. Values stay in your shell.

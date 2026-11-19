@@ -6,7 +6,7 @@ from specpilot.gentests import gen_tests
 from specpilot.regression import regression
 from specpilot.security import SecurityError
 
-from .helpers import feature, sdd, tmp, use_python_e2e, write
+from .helpers import feature, sdd, tmp, use_python_e2e, without, write
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILL = ROOT / "skills" / "spec-driven-development-by-ashish-mohanty"
@@ -51,6 +51,8 @@ class GenTestsTests(unittest.TestCase):
         self.assertIn("REQ-003", source)
 
     def test_generated_tests_satisfy_strict_traceability(self):
+        without(self.r, "red-first")
+        use_python_e2e(self.r)
         feature(self.r, spec=SPEC, plan="# p", tasks="- [x] T-001 x (covers: REQ-001, REQ-002)")
         self.assertEqual(sdd(self.r, "verify", "f1", "--strict")[0], 1)
         self.assertEqual(sdd(self.r, "gen-tests", "f1")[0], 0)
@@ -86,7 +88,9 @@ class RegressionTests(unittest.TestCase):
     def test_clean_project_passes_with_skips(self):
         result = regression(self.r)
         self.assertTrue(result["ok"])
-        self.assertTrue(all(x["skipped"] for x in result["results"]))
+        by = {x["label"]: x for x in result["results"]}
+        self.assertFalse(by["security: secrets"]["skipped"], "the secret scan always runs")
+        self.assertTrue(all(x["skipped"] for label, x in by.items() if label != "security: secrets"))
 
     def test_runs_configured_command_without_shell(self):
         write(self.r, ".sdd/config.json", '{"commands": {"test": "python3 -c \\"import sys; sys.exit(0)\\" ; touch pwned"}}')
@@ -308,7 +312,7 @@ class DirectoryPluginTests(unittest.TestCase):
             self.assertEqual(fm["name"].strip(), skill.name)
             self.assertLessEqual(len(fm["description"].strip()), 1024)
             names.add(skill.name)
-        self.assertEqual(len(names), 16)
+        self.assertEqual(len(names), 18)
         entry = self.plugin / "skills" / "spec-driven-development-by-ashish-mohanty"
         for ref in re.findall(r"`(references/[\w-]+\.md)`", (entry / "SKILL.md").read_text()):
             self.assertTrue((entry / ref).is_file(), ref)

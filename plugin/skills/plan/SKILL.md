@@ -18,6 +18,7 @@ The plan says how the approved spec will be satisfied inside this codebase. It i
    - Touch points table with real paths and the requirement each serves
    - Interfaces and data shapes as signatures or schemas
    - **Requirement → design map**: every `REQ-` id appears with where and how it is proven
+   - **Test contract**: the routes, labels, test ids and API shapes the acceptance tests may rely on, so tests can be written in parallel without reading the code
    - Risks with a rollback path for anything irreversible
    - Constitution check, citing rules by section
 3a. **Org rules.** If `.sdd/extensions/rules.md` exists, check the plan against it and cite each rule in the constitution check.

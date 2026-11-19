@@ -10,7 +10,7 @@ from specpilot.regression import regression
 from specpilot.security import SecurityError
 from specpilot.spec import LIFECYCLE, load_config, verify_feature
 
-from .helpers import feature, sdd, tmp, write
+from .helpers import feature, sdd, tmp, without, write
 
 SPEC = ('Status: approved\n- REQ-001: a\n- REQ-002: b\n## Acceptance scenarios\n'
         '- REQ-001 — Given the user opens /login, when they click "Sign in", then the page shows "Welcome"\n')
@@ -188,6 +188,7 @@ class AnyLanguage(unittest.TestCase):
 
     def test_typescript_form_is_traceable_inert_and_valid(self):
         r = repo(**{"src/a.ts": "x", "package.json": "{}"})
+        without(r, "red-first")
         evil = 'Given `${process.exit(1)}` </script>\\", when "); process.exit(1); (", then c'
         feature(r, spec=SPEC + f"- REQ-002 — {evil}\n", plan="# p", tasks="- [x] T-001 x (covers: REQ-001, REQ-002)")
         out = gen_tests(r, "f1")
@@ -220,6 +221,7 @@ class AnyLanguage(unittest.TestCase):
 
     def test_gherkin_form_for_any_other_stack(self):
         r = repo(**{"src/main/java/A.java": "x", "pom.xml": "<p/>"})
+        without(r, "red-first")
         feature(r, spec=SPEC + "- REQ-002 — Given a\tb, when c, then d\n", plan="# p",
                 tasks="- [x] T-001 x (covers: REQ-001, REQ-002)")
         out = gen_tests(r, "f1")

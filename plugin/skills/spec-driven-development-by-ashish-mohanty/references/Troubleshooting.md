@@ -28,6 +28,17 @@
 | Unit tests fail only under `sdd regression` | They need an environment variable. Add its **name** to `envPassthrough` |
 | `commands.test` with `&&` does nothing useful | Commands run without a shell. Point to a script or Makefile target |
 
+## Security gate and proof
+
+| Message | Fix |
+|---|---|
+| `NOT RUN code-scan` / `dependencies` | Install one of the tools it names for your stack, or switch the layer off with a reason |
+| A fixture or example is reported as a secret | Put `sdd:allow-secret` on that line, or `sdd security allow <fingerprint> --reason "..."` |
+| A real key is reported | Revoke it at the provider first, then remove it |
+| `red-first proof: no red run recorded` | `sdd prove red <feature>` before the code, `sdd prove green <feature>` after |
+| `the acceptance tests changed since the red run` | Record red again; if the test was wrong, fix the spec first with `/sdd-sync` |
+| `NOT recorded: the tests passed` on a red run | The feature already exists or the tests check nothing; find out which |
+
 ## Pentest
 
 | Message | Fix |

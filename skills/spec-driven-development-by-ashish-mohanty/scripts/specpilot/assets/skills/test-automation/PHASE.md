@@ -26,6 +26,7 @@ Tests never contain selectors or credentials. Each Given / When / Then phrase is
    - Gherkin: write step definitions with the runner the stack already uses (see `tests/e2e/README.md`), then set `commands.e2e` in `.sdd/config.json` to the command that runs them.
 4. **Logged-in scenarios.** Credentials come from environment variables and a dedicated low-privilege test account. Python: copy `.sdd/extensions/ui_login.example.py` to `ui_login.py`. TypeScript: create `tests/e2e/ui-login.ts` exporting `login(page, baseUrl, role)`.
 5. **Run** with the command `gen-tests` prints, against a running instance of the app. `baseUrl` in config (or `SDD_BASE_URL`) is where it runs.
+5a. **Prove the tests can fail.** Before the code exists: `sdd prove red <feature>`. After it is built: `sdd prove green <feature>`. The tool refuses green if the test file changed since red. See `parallel-delivery`.
 6. **Keep it in sync.** Re-run `gen-tests` whenever requirements or scenarios change. Only the block between the GENERATED markers is rewritten; tests below it are kept. A hand-written file with the same name is never overwritten.
 7. A failing test means the app or the spec is wrong. Decide which with the person (`spec-sync`); never edit a test to match broken behaviour.
 

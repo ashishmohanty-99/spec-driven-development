@@ -121,6 +121,7 @@ class Traceability(Base):
                   .replace("- REQ-001: When …, the … shall …", "- REQ-001: The app shall work.")
                   .replace("- REQ-002: If …, then the … shall …\n", "")
                   .replace("- REQ-N01: <!--", "- REQ-N01: The page shall load in 2 seconds. <!--")
+                  .replace("- REQ-S01: <!--", "- REQ-S01: If the caller is not the owner, then the app shall refuse. <!--")
                   .replace("- REQ-001 — Given …, when …, then …\n", ""))
         path.write_text(filled)
         self.assertEqual(verify_feature(self.r, "f1")["errors"], [])
@@ -196,10 +197,10 @@ class Secrets(Base):
     def test_06_common_credential_forms_are_detected_without_false_positives(self):
         v = "SuperSecretValue1234567890"
         for line in (f'"password": "{v}"', f"DB_PASSWORD={v}", f"OPENAI_API_KEY={v}", f'SECRET_KEY = "{v}"',
-                     f"client_secret: {v}", f"auth_token={v}", 'password = "P@ssw0rd!LongLongLongLong"',
-                     f"postgres://admin:{v}@db/prod", "glpat-abcdefghij0123456789",
-                     "-----BEGIN PGP PRIVATE KEY BLOCK-----",
-                     "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abcdefghijklmnop"):
+                     f"client_secret: {v}", f"auth_token={v}", 'password = "P@ssw0rd!LongLongLongLong"',  # sdd:allow-secret (test fixture)
+                     f"postgres://admin:{v}@db/prod", "glpat-abcdefghij0123456789",  # sdd:allow-secret (test fixture)
+                     "-----BEGIN PGP PRIVATE KEY BLOCK-----",  # sdd:allow-secret (test fixture)
+                     "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abcdefghijklmnop"):  # sdd:allow-secret (test fixture)
             self.assertTrue(scan_text_for_secrets(line), line)
         for line in ('api_key = os.environ["X"]', "password: <your password>", "secret_key = settings.SECRET_KEY",
                      'page.get_by_label("Password").fill(password)', "token: The session token expires after 15 minutes",

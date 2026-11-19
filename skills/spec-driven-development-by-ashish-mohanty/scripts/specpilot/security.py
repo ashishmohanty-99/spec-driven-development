@@ -38,7 +38,7 @@ TOKEN_PATTERNS = [
     ("API key (sk- style)", re.compile(r"\bsk-[A-Za-z0-9_-]{20,}\b")),
     ("Google API key", re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b")),
     ("JSON web token", re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b")),
-    ("credentials in a URL", re.compile(r"\b[a-z][a-z0-9+.-]*://[^/\s:@]+:[^/\s:@]{6,}@")),
+    ("credentials in a URL", re.compile(r"\b[a-z][a-z0-9+.-]*://[^/\s:@]+:(?!\$|<|\{|%)[^/\s:@]{6,}@")),
 ]
 _NOT_A_VALUE = r"(?!\$|<|\{|your|xxx|\*|changeme|example|placeholder|redacted|none\b|null\b|true\b|false\b)"
 # Context-dependent: a credential-like name assigned a literal value.

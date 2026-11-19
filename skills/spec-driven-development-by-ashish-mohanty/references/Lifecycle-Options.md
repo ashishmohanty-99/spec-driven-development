@@ -10,15 +10,18 @@ flowchart LR
     T --> B[Build]
     B --> X{tests}
     X --> E{e2e}
-    E --> V[Verify]
+    E --> RF{red-first}
+    RF --> V[Verify]
     V --> R{review}
     R --> K{secrets}
-    K --> N{pentest}
+    K --> CS{code-scan}
+    CS --> DP{dependencies}
+    DP --> N{pentest}
     N --> SH[Ship]
     classDef fixed fill:#bbf7d0,stroke:#15803d,color:#1f2937
     classDef opt fill:#fde68a,stroke:#b45309,color:#1f2937
     class S,B,V,SH fixed
-    class C,P,T,X,E,R,K,N opt
+    class C,P,T,X,E,RF,R,K,CS,DP,N opt
 ```
 
 Green always happens. Yellow is your choice.
@@ -33,7 +36,10 @@ Green always happens. Yellow is your choice.
 | `tasks` Task breakdown | Every requirement is covered by a small, ordered task | A requirement can be silently left unbuilt, and progress cannot be tracked |
 | `tests` Test per requirement | A finished requirement must be named by a real test | Requirements can ship unproven. Nothing ties "done" to evidence |
 | `e2e` Generated acceptance tests | End-to-end tests generated from the spec and run | No automated proof of user-visible behaviour; regressions surface in production |
-| `secrets` Secret scanning | Specs, tests and agent files are scanned for credentials | A committed key or password goes unnoticed |
+| `red-first` Red-first proof | Acceptance tests are recorded failing before the code and passing after, unchanged | Nothing shows the tests can fail, or that they were not edited to pass |
+| `secrets` Secret scanning | The whole repository and its git history are scanned for credentials | A committed key or password goes unnoticed |
+| `code-scan` Static code analysis | The source is scanned for exploitable patterns | Injection and similar flaws in the code go unexamined |
+| `dependencies` Dependency audit | Third-party packages are checked against known vulnerabilities | The app can ship with libraries that have published exploits |
 | `review` Independent review | A second reader checks the diff against the spec | Only the author judges its own work |
 | `pentest` Penetration test | Security-relevant changes need a scan record before ship | Auth, input and endpoint changes ship without anyone attacking them first |
 
@@ -68,9 +74,9 @@ The ship report repeats the same list, so whoever merges knows what was not chec
 
 | Situation | Reasonable to switch off | Keep on |
 |---|---|---|
-| Solo prototype or spike | `plan`, `review`, `pentest`, `constitution` | `tests`, `secrets` |
+| Solo prototype or spike | `plan`, `review`, `pentest`, `constitution`, `red-first` | `tests`, `secrets` |
 | Small team, internal tool | `pentest` (if not exposed), `review` | `clarify`, `tasks`, `tests`, `secrets` |
-| Library or CLI with no UI | `e2e` | everything else |
+| Library or CLI with no UI | `e2e` (and with it `red-first`) | everything else |
 | Production product | nothing | everything |
 
 The agent never switches a check off on its own. It will tell you what a check costs and ask for your reason.

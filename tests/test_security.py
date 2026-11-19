@@ -126,7 +126,7 @@ class PentestGuardTests(unittest.TestCase):
         fake = write(bindir, "strix", "#!/bin/sh\necho \"key=$LLM_API_KEY other=$AWS_SECRET_ACCESS_KEY args=$*\"\nexit 2\n")
         fake.chmod(0o755)
         env = {"PATH": f"{bindir}{os.pathsep}{os.environ['PATH']}", "STRIX_LLM": "openai/gpt",
-               "LLM_API_KEY": FAKE_KEY, "AWS_SECRET_ACCESS_KEY": "do-not-forward-this"}
+               "LLM_API_KEY": FAKE_KEY, "AWS_SECRET_ACCESS_KEY": "do-not-forward-this"}  # sdd:allow-secret (test fixture)
         lines = []
         with mock.patch.dict(os.environ, env, clear=True):
             result = pt.pentest(self.r, ["."], authorized=True, out=lines.append)
@@ -145,7 +145,7 @@ class PentestGuardTests(unittest.TestCase):
 class SecretTests(unittest.TestCase):
     def test_detection_and_redaction(self):
         self.assertTrue(scan_text_for_secrets(f"LLM_API_KEY={FAKE_KEY}"))
-        self.assertTrue(scan_text_for_secrets("-----BEGIN RSA PRIVATE KEY-----"))
+        self.assertTrue(scan_text_for_secrets("-----BEGIN RSA PRIVATE KEY-----"))  # sdd:allow-secret (test fixture)
         self.assertEqual(scan_text_for_secrets('api_key = os.environ["X"]\npassword: <your password>'), [])
         self.assertNotIn(FAKE_KEY, redact(f"token {FAKE_KEY} end", {}))
 

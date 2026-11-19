@@ -47,9 +47,11 @@ Call it `SDD` below. Use the first that applies:
 | Open questions in the spec | `clarify` | sets `Status: approved` |
 | Approved spec, no plan | `plan` | approves the design |
 | Approved plan, no tasks | `tasks` | approves the list |
+| Plan approved, want speed | `parallel-delivery` | approves spec and plan as usual |
 | Tasks remaining | `build` | reviews each task |
 | Needs acceptance tests | `test-automation` | fills in missing steps |
 | Everything built | `verify` | signs off |
+| Is it secure? / before ship | `security-gate` | triages findings |
 | Auth, input or endpoint change | `security-pentest` | runs the scan, triages |
 | Ready to release | `ship` | merges |
 | Code and spec disagree | `spec-sync` | decides which is wrong |
@@ -59,6 +61,7 @@ A check the team switched off is skipped without argument; say so in your report
 ## Any language
 - **Understanding the repo:** detection covers Python, JavaScript/TypeScript, Go, Rust, Java/Kotlin, C#/.NET, Ruby, PHP, Swift and more. Anything it misses, the person adds once in the profile.
 - **Building:** use the project's own language, test framework and conventions, taken from `.sdd/codebase-profile.md`. Never introduce a second language or test tool to suit yourself.
+- **Security** is four separate layers (secrets, code scan, dependencies, pentest). A layer that did not run is reported as NOT RUN, never as clean.
 - **Acceptance tests** are generated from the spec in the form the stack can run: Playwright with Python, Playwright with TypeScript, or Gherkin feature files for everything else (Cucumber-JVM, Reqnroll, godog, Behat, cucumber-rs, behave and others).
 
 ## Commands
@@ -72,7 +75,9 @@ A check the team switched off is skipped without argument; say so in your report
 | `SDD verify [feature] [--strict]` | Approval order, coverage, traceability, secrets |
 | `SDD gen-tests <feature>` | Acceptance tests from the spec's scenarios |
 | `SDD regression [--strict]` | Project tests + acceptance tests + all gates |
-| `SDD audit` | Committed secrets and risky configuration |
+| `SDD prove red|green <feature>` | Record the tests failing before the code and passing after, unchanged |
+| `SDD security [--strict]` | Secrets in the repo and its history, code scan, dependency audit |
+| `SDD audit` | Quick self-check of the SDD setup |
 | `SDD pentest --target <path|url> --authorized` | Guarded Strix scan; exit 3 means it did not run |
 
 ## Rules that always apply
@@ -90,6 +95,8 @@ A check the team switched off is skipped without argument; say so in your report
 | `references/Lifecycle-Options.md` | Every optional check and what skipping it costs |
 | `references/Project-Structure.md` | Folder structures for new applications, by stack |
 | `references/Test-Automation.md` | Scenario wording, the three test forms, built-in steps |
+| `references/Parallel-Delivery.md` | Building and testing on two independent tracks; red-first proof |
+| `references/Security-Scanning.md` | The four security layers, engines and how to read the result |
 | `references/Penetration-Testing.md` | Scanning without exposing an API key |
 | `references/Security-Model.md` | Threats, controls and their tests |
 | `references/CLI-Reference.md` | Every command, config key and environment variable |

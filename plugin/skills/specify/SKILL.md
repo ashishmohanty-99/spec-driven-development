@@ -15,6 +15,7 @@ The spec is the contract between human and agent: what we are building, how we w
 4. **Objective and scope.** Outcome for a named user. Non-goals are mandatory; at least two, or write "none identified" and justify.
 5. **Requirements in EARS form.** One behaviour per line: `REQ-001: When <trigger>, the <system> shall <response>`. Each must be falsifiable by a test. Replace vague words (fast, secure, intuitive) with measurable thresholds.
 6. **Non-functional requirements** only where they matter (latency, accessibility, audit). Use ids `REQ-N01`.
+6a. **Abuse cases.** For every requirement that touches sign-in, permissions, user input, files, payments or personal data, write what must not be possible as its own requirement with a `REQ-S01` style id. They get tasks and negative tests like any other requirement.
 7. **Acceptance scenarios** for anything where the EARS line alone is ambiguous.
 8. **Boundaries.** Always / Ask first / Never, consistent with the constitution.
 9. **Mark unknowns.** Every assumption you cannot confirm from the code or the user becomes `[NEEDS CLARIFICATION: question]`. Do not invent answers.
