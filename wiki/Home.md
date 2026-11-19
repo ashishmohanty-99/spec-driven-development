@@ -29,7 +29,7 @@ Yellow needs a person's approval, blue is agent work, green is checked by the `s
 | Start a brand-new application with a proper structure | [Project Structure](Project-Structure) |
 | Decide which checks my team wants | [Lifecycle Options](Lifecycle-Options) |
 | Understand why this process exists | [SDD and the AI SDLC](SDD-and-the-AI-SDLC) |
-| See every phase, who acts, and what to check | [Step-by-Step Workflow](Step-by-Step-Workflow) |
+| See all eleven steps: who acts and what to check | [Step-by-Step Workflow](Step-by-Step-Workflow) |
 | Generate acceptance tests from my spec, in my language | [Test Automation](Test-Automation) |
 | Build and test in parallel, with proof the tests are honest | [Parallel Delivery](Parallel-Delivery) |
 | Scan for secrets, vulnerable code and vulnerable packages | [Security Scanning](Security-Scanning) |

@@ -1,6 +1,6 @@
 # Penetration Testing
 
-`sdd pentest` is a guarded wrapper around [Strix](https://github.com/usestrix/strix), an open-source AI pentesting agent. SpecPilot does not contain Strix; it decides whether a scan may start, and how.
+`sdd pentest` is a guarded wrapper around [Strix](https://github.com/usestrix/strix), an open-source AI pentesting agent. The `sdd` tool does not contain Strix; it decides whether a scan may start, and how.
 
 ## Your API key never leaves your machine
 

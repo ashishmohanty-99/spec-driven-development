@@ -35,16 +35,16 @@ flowchart TB
 
 ## How SDD maps onto the AI SDLC
 
-| Classic SDLC stage | With an AI agent, the risk is… | SpecPilot phase | Artifact | Who decides |
+| Classic SDLC stage | With an AI agent, the risk is… | Step here | Artifact | Who decides |
 |---|---|---|---|---|
-| Requirements | Guessed intent | Specify, Clarify | `spec.md` with `REQ-` ids | Human approves |
-| Analysis | Ignorance of the codebase | Discover, Constitute | Profile, constitution | Human confirms |
-| Design | Unreviewed architecture | Plan | `plan.md`, ADRs | Human approves |
-| Implementation | Huge unreviewable diffs | Tasks, Build | `tasks.md`, small commits | Human approves list |
-| Testing | Tests written to pass | Test automation, Verify | Generated e2e tests, `verification.md` | CLI gates |
-| Security | Nobody looked | Security | Pentest record, `sdd audit` | Human triages |
-| Release | No rollback plan | Ship | Definition of done | Human merges |
-| Maintenance | Spec and code drift apart | Spec-sync | Decision log | Human decides direction |
+| Requirements | Guessed intent | Steps 4-5: Write the spec, Clarify and approve | `spec.md` with `REQ-` ids | Human approves |
+| Analysis | Ignorance of the codebase | Steps 2-3: Set up the repository, Agree team rules | Profile, constitution | Human confirms |
+| Design | Unreviewed architecture | Step 6: Plan | `plan.md`, ADRs | Human approves |
+| Implementation | Huge unreviewable diffs | Steps 7-8: Tasks, Build and test in parallel | `tasks.md`, small commits | Human approves list |
+| Testing | Tests written to pass | Steps 8-9: Build and test in parallel, Verify | Generated e2e tests, `verification.md` | CLI gates |
+| Security | Nobody looked | Step 10: Security gate | Gate result, pentest record, `sdd audit` | Human triages |
+| Release | No rollback plan | Step 11: Ship | Definition of done | Human merges |
+| Maintenance | Spec and code drift apart | Any time: `/sdd-sync` | Decision log | Human decides direction |
 
 ## Traceability: the mechanism that makes it enforceable
 

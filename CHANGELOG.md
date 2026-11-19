@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.2
+
+### Fixed
+- The README, the wiki's Getting Started and the Step-by-Step Workflow described the same process with three different numberings. All three now use one list of eleven steps with identical numbers and names, and a test fails if they drift apart.
+- Remaining mentions of the old product name in the reference pages and skills are removed.
+
 ## 2.3.1
 
 ### Changed

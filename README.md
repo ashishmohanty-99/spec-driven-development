@@ -19,20 +19,42 @@ Yellow steps need a person's approval. Everything else runs between approvals.
 
 ## Contents
 
-- [Install](#install)
+- [The process at a glance](#the-process-at-a-glance)
 - [The real process, step by step](#the-real-process-step-by-step)
 - [What actually runs underneath](#what-actually-runs-underneath)
 - [Security: what is and is not checked](#security-what-is-and-is-not-checked)
 - [You choose the checks](#you-choose-the-checks)
 - [Documentation](#documentation)
 
-## Install
+## The process at a glance
+
+Steps 1 to 3 happen once. Steps 4 to 11 repeat for every feature. The wiki uses the same numbers and names.
+
+| Step | Name | When | You | Result |
+|---|---|---|---|---|
+| 1 | Install the skill | Once per machine | Run one command | The skill is available to your agent |
+| 2 | Set up the repository | Once per repository | Answer a few questions | Profile, config and the tool in `.sdd/` |
+| 3 | Agree team rules | Once per repository | Ratify | `.sdd/constitution.md` |
+| 4 | Write the spec | Every feature | Describe the idea | `spec.md` (draft) |
+| 5 | Clarify and approve | Every feature | **Approve** | `spec.md` (approved) |
+| 6 | Plan | Every feature | **Approve** | `plan.md` with a Test contract |
+| 7 | Tasks | Every feature | **Approve** | `tasks.md` |
+| 8 | Build and test in parallel | Every feature | Review each task | Code, acceptance tests, red → green proof |
+| 9 | Verify | Every feature | Decide on findings | `verification.md` |
+| 10 | Security gate | Every feature | Run the pentest, triage | Gate result per layer |
+| 11 | Ship | Every feature | **Merge** | Released feature |
+
+## The real process, step by step
+
+Each step shows what **you** do, what the **agent** does, and what the **tool** checks. Commands starting with `/` are typed to the agent; commands starting with `sdd` run in a terminal. Once the tool is copied into your project, `sdd` means `python3 .sdd/bin/sdd.py`.
+
+### Step 1: Install the skill
 
 ```bash
 npx skills add ashishmohanty-99/spec-driven-development
 ```
 
-This works for Claude Code, Cursor, Codex, Copilot, Gemini CLI and other agents that support skills. You need Python 3.11 or newer on the machine; the tool has no other dependencies.
+This works for Claude Code, Cursor, Codex, Copilot, Gemini CLI and other agents that support skills. You need Python 3.11 or newer; the tool has no other dependencies.
 
 | Other route | How |
 |---|---|
@@ -42,11 +64,7 @@ This works for Claude Code, Cursor, Codex, Copilot, Gemini CLI and other agents 
 | Python package | `pipx install git+https://github.com/ashishmohanty-99/spec-driven-development` |
 | Plugin directory | The `plugin/` folder: documentation only, no tool. The agent applies the checks by hand ([Manual Mode](skills/spec-driven-development-by-ashish-mohanty/references/Manual-Mode.md)) |
 
-## The real process, step by step
-
-Each step shows what **you** do, what the **agent** does, and what the **tool** checks. Commands starting with `/` are typed to the agent; commands starting with `sdd` run in a terminal. If the tool was copied into your project, `sdd` means `python3 .sdd/bin/sdd.py`.
-
-### Step 0: Set up the repository (once)
+### Step 2: Set up the repository
 
 | | |
 |---|---|
@@ -55,13 +73,20 @@ Each step shows what **you** do, what the **agent** does, and what the **tool** 
 | **Tool does** | Reads file names and manifests (never secret files). Detects languages, frameworks, test tools and CI. Installs the phase skills and commands. Copies itself to `.sdd/bin/` so teammates and CI need nothing installed. Adds `.env`, key files and scan output to `.gitignore` |
 | **Agent then** | Tells you what it found and asks up to five questions, one at a time, each with a recommended answer |
 | **You decide** | Your test command, where the app runs, the form of acceptance tests, and which checks to keep |
-| **Produces** | `.sdd/codebase-profile.md`, `.sdd/config.json`, a draft `.sdd/constitution.md` |
+| **Produces** | `.sdd/codebase-profile.md`, `.sdd/config.json` |
 
 In an empty repository the agent also proposes a folder structure for your stack, waits for your approval, generates it with the ecosystem's own tooling, and shows that build, lint and one test pass.
 
-Then agree your team rules: `/sdd-constitution`, and change `Status: draft` to `Status: ratified` yourself.
+### Step 3: Agree team rules
 
-### Step 1: Write the spec
+| | |
+|---|---|
+| **You type** | `/sdd-constitution` |
+| **Agent does** | Drafts a short list of checkable rules from what your repository and CI already enforce |
+| **You do** | Edit it, then change `Status: draft` to `Status: ratified` yourself |
+| **Produces** | `.sdd/constitution.md` |
+
+### Step 4: Write the spec
 
 | | |
 |---|---|
@@ -69,7 +94,7 @@ Then agree your team rules: `/sdd-constitution`, and change `Status: draft` to `
 | **Agent does** | Searches your code, then writes testable requirements with permanent ids (`REQ-001`), what is out of scope, abuse cases for anything security-relevant (`REQ-S01`), and a Given/When/Then scenario per requirement. Anything it cannot confirm is marked `[NEEDS CLARIFICATION]` instead of guessed |
 | **Produces** | `.sdd/specs/login-lockout/spec.md` with `Status: draft` |
 
-### Step 2: Clarify and approve
+### Step 5: Clarify and approve
 
 | | |
 |---|---|
@@ -78,7 +103,7 @@ Then agree your team rules: `/sdd-constitution`, and change `Status: draft` to `
 | **You do** | Change `Status: draft` to `Status: approved`. The agent is not allowed to |
 | **Tool checks** | `sdd verify login-lockout`: no open questions, no placeholder text, no duplicate ids |
 
-### Step 3: Plan
+### Step 6: Plan
 
 | | |
 |---|---|
@@ -87,7 +112,7 @@ Then agree your team rules: `/sdd-constitution`, and change `Status: draft` to `
 | **You do** | Approve, paying attention to new dependencies, migrations and public API changes |
 | **Produces** | `plan.md` |
 
-### Step 4: Tasks
+### Step 7: Tasks
 
 | | |
 |---|---|
@@ -96,7 +121,7 @@ Then agree your team rules: `/sdd-constitution`, and change `Status: draft` to `
 | **Tool checks** | Every requirement is covered; no task is unlinked |
 | **You do** | Approve the list |
 
-### Step 5: Build and test, in parallel
+### Step 8: Build and test in parallel
 
 | | |
 |---|---|
@@ -106,7 +131,7 @@ Then agree your team rules: `/sdd-constitution`, and change `Status: draft` to `
 | **Join** | `sdd prove green login-lockout`. The **same, unchanged** test file must now pass. If it was edited since the red run, the tool refuses |
 | **Produces** | Code, `tests/e2e/…`, `evidence.json` |
 
-### Step 6: Verify
+### Step 9: Verify
 
 | | |
 |---|---|
@@ -116,7 +141,7 @@ Then agree your team rules: `/sdd-constitution`, and change `Status: draft` to `
 | **You do** | Decide on each finding |
 | **Produces** | `verification.md` |
 
-### Step 7: Security
+### Step 10: Security gate
 
 | | |
 |---|---|
@@ -124,7 +149,7 @@ Then agree your team rules: `/sdd-constitution`, and change `Status: draft` to `
 | **You run** | The penetration test, in your own terminal: `sdd pentest --target . --authorized`. The agent never sees your model key |
 | **Agent does** | Triages findings with you: fix, accept the risk with a named owner, or show it is a false positive |
 
-### Step 8: Ship
+### Step 11: Ship
 
 | | |
 |---|---|

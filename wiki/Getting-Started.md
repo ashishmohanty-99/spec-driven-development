@@ -6,28 +6,29 @@ Throughout, commands that start with `/` are typed to your agent, and commands t
 
 ```mermaid
 flowchart TD
-    A[1. Install the skill] --> B[2. Set up the repository]
-    B --> C[3. Answer the setup questions]
-    C --> D[4. Agree team rules]
-    D --> E[5. Write and approve a spec]
-    E --> F[6. Plan and tasks]
-    F --> G[7. Build and test in parallel]
-    G --> H[8. Verify]
-    H --> I[9. Security gate]
-    I --> J[10. Ship]
+    S1[Step 1 · Install the skill] --> S2[Step 2 · Set up the repository]
+    S2 --> S3[Step 3 · Agree team rules]
+    S3 --> S4[Step 4 · Write the spec]
+    S4 --> S5[Step 5 · Clarify and approve]
+    S5 --> S6[Step 6 · Plan]
+    S6 --> S7[Step 7 · Tasks]
+    S7 --> S8[Step 8 · Build and test in parallel]
+    S8 --> S9[Step 9 · Verify]
+    S9 --> S10[Step 10 · Security gate]
+    S10 --> S11[Step 11 · Ship]
     classDef once fill:#e0e7ff,stroke:#4338ca,color:#1f2937
     classDef each fill:#dcfce7,stroke:#15803d,color:#1f2937
-    class A,B,C,D once
-    class E,F,G,H,I,J each
+    class S1,S2,S3 once
+    class S4,S5,S6,S7,S8,S9,S10,S11 each
 ```
 
-Blue steps happen once per repository. Green steps repeat for every feature.
+Blue steps (1 to 3) happen once. Green steps (4 to 11) repeat for every feature. The README and the [Step-by-Step Workflow](Step-by-Step-Workflow) use the same numbers and names.
 
 ---
 
-## Part 1: once per repository
+## Part 1: once (steps 1 to 3)
 
-### 1. Install the skill
+### Step 1: Install the skill
 
 ```bash
 npx skills add ashishmohanty-99/spec-driven-development
@@ -39,7 +40,7 @@ npx skills add ashishmohanty-99/spec-driven-development
 | claude.ai | Clone the repository, run `python tools/build_skill.py`, upload `dist/sdd-skill.zip` at Customize → Skills |
 | Python package | `pipx install git+https://github.com/ashishmohanty-99/spec-driven-development` |
 
-### 2. Set up the repository
+### Step 2: Set up the repository
 
 Open your project and tell the agent:
 
@@ -65,9 +66,7 @@ What I did:
 
 Only file names and manifests are read. `.env` files, keys and credential files are listed as protected and never opened.
 
-### 3. Answer the setup questions
-
-The agent asks only what it could not work out, one question at a time, with a recommended answer. "Use the defaults" is a valid reply.
+The agent then asks only what it could not work out, one question at a time, with a recommended answer. "Use the defaults" is a valid reply.
 
 | Question | Example answer |
 |---|---|
@@ -89,7 +88,7 @@ sdd doctor
 sdd audit
 ```
 
-### 4. Agree team rules
+### Step 3: Agree team rules
 
 ```text
 /sdd-constitution
@@ -99,11 +98,11 @@ The agent drafts a short list of rules from what your repository and CI already 
 
 ---
 
-## Part 2: for every feature
+## Part 2: for every feature (steps 4 to 11)
 
 The example feature: *lock an account for 15 minutes after 5 failed logins.*
 
-### 5. Write and approve the spec
+### Step 4: Write the spec
 
 ```text
 /sdd-spec "Lock an account for 15 minutes after 5 failed logins"
@@ -125,7 +124,11 @@ Status: draft
 - REQ-001 — Given the user opens /login, when they fill "wrong" into "Password" and they click "Sign in", then the page shows "Invalid email or password"
 ```
 
-Anything it could not confirm is marked `[NEEDS CLARIFICATION: …]`. Resolve those:
+Anything it could not confirm is marked `[NEEDS CLARIFICATION: …]`.
+
+### Step 5: Clarify and approve
+
+Resolve the open questions:
 
 ```text
 /sdd-clarify login-lockout
@@ -137,13 +140,15 @@ When you are satisfied, change `Status: draft` to `Status: approved`. The agent 
 sdd verify login-lockout
 ```
 
-### 6. Plan and tasks
+### Step 6: Plan
 
 ```text
 /sdd-plan login-lockout
 ```
 
-The plan names the exact files to change, maps each requirement to where it is satisfied, and includes a **Test contract**: the routes, labels and ids that tests may rely on. Approve it, then:
+The plan names the exact files to change, maps each requirement to where it is satisfied, and includes a **Test contract**: the routes, labels and ids that tests may rely on. Approve it.
+
+### Step 7: Tasks
 
 ```text
 /sdd-tasks login-lockout
@@ -157,7 +162,7 @@ The plan names the exact files to change, maps each requirement to where it is s
 
 Approve the list.
 
-### 7. Build and test in parallel
+### Step 8: Build and test in parallel
 
 ```text
 /sdd-parallel login-lockout
@@ -180,7 +185,7 @@ The tester never reads the implementation, so its tests check what was asked. Th
 
 Prefer one step at a time? Use `/sdd-build login-lockout` for each task and `/sdd-gen-tests login-lockout` for the tests.
 
-### 8. Verify
+### Step 9: Verify
 
 ```text
 /sdd-verify login-lockout
@@ -203,7 +208,7 @@ Regression summary:
 
 That last line is the tool being honest: no analyser is installed, so it will not call the code clean. Install one for your stack, or switch that layer off with a reason. See [Security Scanning](Security-Scanning).
 
-### 9. Security gate
+### Step 10: Security gate
 
 ```bash
 sdd security --strict
@@ -222,7 +227,7 @@ For a change that touches sign-in like this one, you also run the penetration te
 sdd pentest --target . --authorized
 ```
 
-### 10. Ship
+### Step 11: Ship
 
 ```text
 /sdd-ship login-lockout
