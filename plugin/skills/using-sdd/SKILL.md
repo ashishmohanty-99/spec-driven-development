@@ -27,7 +27,9 @@ Spec has [NEEDS CLARIFICATION]?          ──→ clarify
 Spec "Status: approved", no plan?        ──→ plan
 Plan approved, no tasks?                 ──→ tasks
 Tasks approved, work remaining?          ──→ build
+Plan approved, want to go faster?        ──→ parallel-delivery
 All tasks done?                          ──→ verify, then ship
+Is it secure? / before ship              ──→ security-gate
 Need e2e tests generated from the spec?  ──→ test-automation
 Auth / input / endpoint change to ship?  ──→ security-pentest
 Code and spec disagree?                  ──→ spec-sync

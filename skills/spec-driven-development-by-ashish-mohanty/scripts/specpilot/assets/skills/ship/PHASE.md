@@ -18,6 +18,8 @@ The readiness report always includes a "Checks switched off" section copied from
    - Docs, changelog and public API notes updated
    - Config, migrations and feature flags listed with defaults
    - Monitoring/logging for new failure modes
+   - `sdd security --strict` passes, or each layer that did not run is switched off with a recorded reason
+   - Red-first proof recorded: red before the code, green after, test file unchanged
    - `sdd regression --strict` green (unit + generated e2e + traceability gates) and `sdd audit` passes
    - For changes to auth, input handling or a new endpoint: `security-pentest` done by the human (exit code 0, or findings triaged), Security section in `verification.md`. Exit code 3 (not run) does not satisfy this
 3. **Rollout.** Describe how it reaches users (flag, staged, direct), what to watch, and the explicit rollback trigger and steps. Irreversible changes (data migrations) need a written reversal or a justified "none".

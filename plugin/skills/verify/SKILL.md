@@ -11,6 +11,7 @@ Verification answers one question: does the code satisfy every approved requirem
 ## Process
 Before you start, run `sdd lifecycle`. Steps that belong to a check the team switched off are skipped; list them under "Not checked (team decision)" in your report, with the consequence the tool prints.
 
+0. **Proof and security first.** `sdd prove green <feature>` if not yet recorded, then `sdd security --strict` (see the `security-gate` skill). Carry every layer's status into the report.
 1. **Mechanical gate.** `sdd verify <feature> --strict`. Every ERROR must be fixed: uncovered requirements, orphan tasks, requirements with completed tasks but no test naming them, leftover clarification markers.
 2. **Regression sweep.** `sdd regression --strict` runs the project's own tests, the generated pytest-playwright suite (`test-automation`), and the traceability gates in one pass. If no e2e suite exists yet for user-facing requirements, run `test-automation` first.
 3. **Full project checks.** Run the profile's build, lint, typecheck and test commands. Record results.

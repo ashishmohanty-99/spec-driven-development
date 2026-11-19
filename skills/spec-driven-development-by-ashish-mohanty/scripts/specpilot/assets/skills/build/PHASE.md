@@ -22,6 +22,8 @@ If `.sdd/extensions/tools.md` describes internal tooling relevant to the task (s
 
 Security while building: validate input at trust boundaries, use parameterised queries, never log secrets, and add no dependency without asking.
 
+Never edit a feature's generated acceptance-test file or its `evidence.json`. If an acceptance test looks wrong, stop and use `spec-sync`; changing it to pass voids the red-first proof.
+
 ## When things go wrong
 - Test fails unexpectedly: debug the cause; never weaken or skip the test to pass.
 - The spec turns out wrong: stop, load `spec-sync`, change the spec first with a decision-log entry, get approval, then continue.

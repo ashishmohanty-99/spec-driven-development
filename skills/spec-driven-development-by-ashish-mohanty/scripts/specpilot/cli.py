@@ -9,12 +9,15 @@ from pathlib import Path
 
 from . import __version__
 from .audit import audit
+from .evidence import prove
 from .gentests import framework, gen_tests
 from .installer import AGENTS, init, write_profile
 from .onboarding import answer, questions
 from .pentest import NOT_RUN, SCAN_MODES, SEVERITIES, pentest
 from .regression import regression
+from .secretscan import allow
 from .security import SecurityError, one_line, redact
+from .securitygate import security_gate
 from .spec import (
     LIFECYCLE,
     e2e_dir,
@@ -80,6 +83,19 @@ def _parser() -> argparse.ArgumentParser:
     s.add_argument("--instruction")
     s.add_argument("--diff-base")
     s.add_argument("--max-budget", type=float, metavar="USD")
+    s = sub.add_parser("security", help="security gate: secrets (repo + history), code scan, dependencies, pentest")
+    s.add_argument("action", nargs="?", choices=("run", "allow"), default="run")
+    s.add_argument("fingerprint", nargs="?", help="with allow: the fingerprint printed beside a finding")
+    s.add_argument("--reason", help="with allow: why this finding is not a real secret")
+    s.add_argument("--strict", action="store_true", help="an enabled layer that did not run fails the gate")
+    s.add_argument("--no-history", action="store_true", help="scan the working tree only")
+    s.add_argument("--verify-live", action="store_true",
+                   help="let TruffleHog check whether each key is active (it contacts the provider)")
+    s.add_argument("--pentest", action="append", metavar="TARGET")
+    s.add_argument("--authorized", action="store_true")
+    s = sub.add_parser("prove", help="red-first proof: record the acceptance tests failing, then passing")
+    s.add_argument("phase", choices=("red", "green"))
+    s.add_argument("feature")
     sub.add_parser("audit", help="security self-check: committed secrets, .gitignore, config, CI")
     sub.add_parser("doctor", help="installation health")
     return p
@@ -195,6 +211,13 @@ def _next(root: Path) -> int:
             if r["errors"]:
                 print(f"     ! {len(r['errors'])} gate issue(s): sdd verify {f}")
             print(f"     -> {action}")
+            st = r["stats"]
+            if phase in ("PLAN", "TASKS", "BUILD") and st.get("approved") and enabled(cfg, "e2e"):
+                if not st.get("hasAcceptanceTests"):
+                    print(f"     || in parallel (test track): /sdd-gen-tests {f}, written from the spec by a "
+                          "separate agent")
+                elif enabled(cfg, "red-first") and not st.get("redRecorded"):
+                    print(f"     || in parallel (test track): record the failing run now: sdd prove red {f}")
     _skipped_banner(cfg)
     return 0
 
@@ -330,6 +353,51 @@ def _dispatch(args, root: Path, parser) -> int:
             print({0: "Pentest clean at the chosen threshold.", 2: "Pentest found vulnerabilities."}
                   .get(r["status"], "Pentest ended with an error."), f"Record: {r['record']}")
         return r["status"]
+
+    if cmd == "security":
+        if args.action == "allow":
+            allow(root, args.fingerprint or "", args.reason or "")
+            print(f"Accepted {args.fingerprint}. Recorded in .sdd/security/allow.json with your reason; commit that file.")
+            return 0
+        gate = security_gate(root, strict=args.strict, history=False if args.no_history else None,
+                             verify_live=args.verify_live, pentest_targets=args.pentest, authorized=args.authorized)
+        print("Security gate:")
+        for entry in gate["layers"]:
+            print(f"  {entry['status'].upper():<8} {entry['layer']:<13} {entry['detail']}")
+            for f in entry.get("findings", [])[:50]:
+                where = f"{f['file']}:{f['line']}" if f["line"] else f["file"]
+                print(f"             - {f['kind']}  {where}  [{f['where']}]  fingerprint {f['fingerprint']}")
+            if len(entry.get("findings", [])) > 50:
+                print(f"             ... and {len(entry['findings']) - 50} more")
+            for note in entry.get("notes", []):
+                print(f"             note: {note}")
+            for run in entry.get("tools", []):
+                if run["status"] != "clean":
+                    for line in run.get("output", [])[-12:]:
+                        print(f"             | {line}")
+        if any(e.get("findings") for e in gate["layers"]):
+            print("\nA real secret: revoke it at the provider first, then remove it (history included).\n"
+                  'A false positive: sdd security allow <fingerprint> --reason "..."  or put  sdd:allow-secret  on that line.')
+        verdict = {0: "passed", 2: "FAILED: findings", 1: "FAILED: a tool reported an error",
+                   NOT_RUN: f"FAILED: not run in strict mode ({', '.join(gate['notRun'])})"}[gate["exit"]]
+        if gate["exit"] == 0 and gate["notRun"]:
+            verdict += f", but NOT RUN: {', '.join(gate['notRun'])} (unknown is not clean; --strict makes this fail)"
+        print(f"\nSecurity gate {verdict}")
+        _skipped_banner(load_config(root))
+        return gate["exit"]
+
+    if cmd == "prove":
+        result = prove(root, args.feature, args.phase)
+        for line in result["output"]:
+            print(f"  | {line}")
+        if args.phase == "red":
+            print("RED recorded: the acceptance tests fail before the code exists." if result["ok"] else
+                  "NOT recorded: the tests passed. A red run must fail; if the feature already exists, "
+                  "the tests are not proving anything new.")
+        else:
+            print("GREEN recorded: the same, unchanged tests now pass." if result["ok"] else
+                  "NOT recorded: the tests still fail.")
+        return 0 if result["ok"] else 1
 
     if cmd == "audit":
         r = audit(root)

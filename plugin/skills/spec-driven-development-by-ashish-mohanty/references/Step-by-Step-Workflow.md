@@ -117,6 +117,14 @@ A phase below that belongs to a check you switched off is skipped, and every rep
 | **Agent does** | Vertical slices, at most ~5 files each: `- [ ] T-001 Count failed attempts (covers: REQ-001)` |
 | **Gate** | Every requirement covered, no orphan task |
 
+## Going faster · Parallel delivery *(optional)*
+
+| | |
+|---|---|
+| **You type** | `/sdd-parallel login-lockout` once the plan is approved |
+| **What happens** | A separate tester agent writes the acceptance tests from the spec and records them failing, while the build proceeds. At the end the same, unchanged tests must pass |
+| **More** | [Parallel Delivery](Parallel-Delivery) |
+
 ## Phase 6 · Build *(repeat per task)*
 
 | | |
@@ -142,6 +150,9 @@ A phase below that belongs to a check you switched off is skipped, and every rep
 | **Produces** | `verification.md` |
 
 ## Phase 9 · Security
+
+Run `sdd security` first: secrets across the repository and its history, code scan and dependency audit, each reported as clean, findings or NOT RUN. See [Security Scanning](Security-Scanning). The penetration test below is the fourth layer.
+
 
 | | |
 |---|---|

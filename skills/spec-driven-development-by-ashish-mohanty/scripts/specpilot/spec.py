@@ -42,8 +42,14 @@ LIFECYCLE = {
               "Requirements can ship unproven. Nothing ties 'done' to evidence."),
     "e2e": ("Generated acceptance tests", "End-to-end tests are generated from the spec's scenarios and run.",
             "No automated proof of user-visible behaviour; regressions surface in production."),
-    "secrets": ("Secret scanning", "Specs, tests and agent files are scanned for committed credentials.",
+    "red-first": ("Red-first proof", "Acceptance tests are recorded failing before the code exists and passing after, unchanged.",
+                  "Nothing shows the tests can fail, or that they were not edited to pass."),
+    "secrets": ("Secret scanning", "The whole repository and its git history are scanned for committed credentials.",
                 "A committed key or password goes unnoticed. Leaked credentials are the costliest mistake here."),
+    "code-scan": ("Static code analysis", "The source is scanned for exploitable patterns with the stack's analyser.",
+                  "Injection, unsafe deserialisation and similar flaws in the code go unexamined."),
+    "dependencies": ("Dependency audit", "Third-party packages are checked against known vulnerabilities.",
+                     "The application can ship with libraries that have published exploits."),
     "review": ("Independent review", "A second reader checks the diff against the spec before sign-off.",
                "Only the author (often the agent) judges its own work."),
     "pentest": ("Penetration test", "Security-relevant changes need a scan record before ship.",
@@ -63,6 +69,7 @@ DEFAULT_CONFIG = {
     "project": {"kind": None, "stack": None},
     "onboarding": {"answered": []},
     "pentest": {"allowedTargets": [], "failOn": "high", "scanMode": "quick"},
+    "security": {"exclude": [], "history": True, "engine": "auto"},
 }
 
 
@@ -109,6 +116,9 @@ def load_config(root: Path) -> dict:
         raise SecurityError(f'.sdd/config.json: "e2eFramework" must be one of: {", ".join(E2E_FRAMEWORKS)}')
     if cfg["baseUrl"] is not None and not isinstance(cfg["baseUrl"], str):
         raise SecurityError('.sdd/config.json: "baseUrl" must be a string')
+    _str_list(cfg["security"].get("exclude", []), "security.exclude")
+    if cfg["security"].get("engine", "auto") not in ("auto", "builtin", "trufflehog", "gitleaks"):
+        raise SecurityError('.sdd/config.json: "security.engine" must be auto, builtin, trufflehog or gitleaks')
     _str_list(cfg["onboarding"].get("answered", []), "onboarding.answered")
     _str_list(cfg["envPassthrough"], "envPassthrough")
     _str_list(cfg["pentest"].get("allowedTargets", []), "pentest.allowedTargets")
@@ -356,6 +366,15 @@ def verify_feature(root: Path, feature: str, strict: bool = False) -> dict:
                 if r not in refs:
                     errors.append(f"spec is shipped but no test names {r}")
 
+    if on["red-first"] and on["e2e"]:
+        from .evidence import status as proof_status  # local import: evidence depends on this module
+
+        proof = proof_status(root, feature)
+        all_done = bool(tasks) and all(t["done"] for t in tasks)
+        if proof["tests"] and proof["problem"] and (shipped or all_done):
+            (errors if shipped or strict else warnings).append(
+                f"red-first proof: {proof['problem']} (sdd prove red|green {feature})")
+
     if on["secrets"]:  # credentials must never be committed inside SDD artifacts
         for name, text in (("spec.md", spec_text), ("plan.md", plan_text), ("tasks.md", tasks_text),
                            ("verification.md", read_text(d / "verification.md"))):
@@ -369,6 +388,10 @@ def verify_feature(root: Path, feature: str, strict: bool = False) -> dict:
              "hasPlan": bool(plan_text), "hasTasks": bool(tasks_text),
              "hasVerification": (d / "verification.md").is_file(),
              "skipped": [name for name, is_on in on.items() if not is_on]}
+    if on["red-first"] and on["e2e"]:
+        stats["proofProblem"] = proof["problem"] if proof["tests"] else None
+        stats["hasAcceptanceTests"] = proof["tests"]
+        stats["redRecorded"] = proof["red"]
     return {"errors": errors, "warnings": warnings, "stats": stats}
 
 
@@ -400,6 +423,8 @@ def next_step(stats: dict, feature: str) -> tuple[str, str]:
         return "BUILD", f"Build against the spec: /sdd-build {feature}, then /sdd-verify {feature}"
     if "e2e" not in skipped and stats["reqsWithTests"] < stats["requirements"]:
         return "VERIFY / SHIP", f"Generate acceptance tests: /sdd-gen-tests {feature}"
+    if stats.get("proofProblem"):
+        return "VERIFY / SHIP", f"Prove the tests: sdd prove green {feature} ({stats['proofProblem']})"
     if not stats.get("hasVerification"):
         return "VERIFY / SHIP", f"Prove it: /sdd-verify {feature}"
     return "VERIFY / SHIP", f"Readiness report: /sdd-ship {feature} (a person merges)"

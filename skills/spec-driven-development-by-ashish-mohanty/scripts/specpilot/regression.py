@@ -104,6 +104,17 @@ def regression(root: Path, strict: bool = False, pentest_targets: list[str] | No
                     "skipped": not features and not invalid,
                     "note": f"{gate_errors} gate error(s)" if gate_errors else None})
 
+    from .securitygate import NOT_RUN_S, security_gate
+
+    gate = security_gate(root, strict=strict)
+    for entry in gate["layers"]:
+        if entry["layer"] == "pentest":
+            continue  # reported below, only when a target was given
+        failed = entry["status"] in ("findings", "error") or (strict and entry["status"] == NOT_RUN_S)
+        results.append({"label": f"security: {entry['layer']}", "status": 1 if failed else 0,
+                        "skipped": entry["status"] in (NOT_RUN_S, "off"),
+                        "note": f"{entry['status']}: {one_line(entry['detail'], 140)}"})
+
     if pentest_targets:
         p = pentest(root, pentest_targets, authorized=authorized)
         # A requested scan that did not run fails the sweep: skipped is not the same as clean.

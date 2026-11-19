@@ -60,6 +60,25 @@ That is all. The skill carries its own small tool (Python 3.11+, no other depend
 /sdd-next                   what to do now
 ```
 
+## Ship faster without trusting less
+
+Once the plan is approved, `/sdd-parallel <feature>` runs two tracks at once: the build, and a separate tester agent that writes the acceptance tests from the spec without ever seeing the code. `sdd prove red` records the tests failing before the code exists; `sdd prove green` records the same, unchanged tests passing after. A test that never failed, or was edited to pass, does not count. Details: [Parallel Delivery](skills/spec-driven-development-by-ashish-mohanty/references/Parallel-Delivery.md).
+
+## Security in four layers
+
+```bash
+sdd security --strict
+```
+
+| Layer | What it checks | Engine |
+|---|---|---|
+| Secrets | The whole repository and its entire git history | TruffleHog or gitleaks when installed; a built-in scanner otherwise |
+| Code scan | Exploitable patterns in your source | semgrep, bandit, gosec, brakeman |
+| Dependencies | Known-vulnerable packages | osv-scanner, trivy, pip-audit, npm audit and others |
+| Pentest | The running application | Strix, run by a person |
+
+A layer whose tool is not installed reports **NOT RUN**, never clean. Details: [Security Scanning](skills/spec-driven-development-by-ashish-mohanty/references/Security-Scanning.md).
+
 ## You choose the checks
 
 | Check | If you switch it off |
@@ -70,7 +89,10 @@ That is all. The skill carries its own small tool (Python 3.11+, no other depend
 | Task breakdown | A requirement can be silently left unbuilt |
 | Test per requirement | Requirements can ship unproven |
 | Generated acceptance tests | No automated proof of user-visible behaviour |
+| Red-first proof | Nothing shows the tests can fail, or that they were not edited to pass |
 | Secret scanning | A committed key or password goes unnoticed |
+| Static code analysis | Injection and similar flaws in the code go unexamined |
+| Dependency audit | The app can ship with libraries that have published exploits |
 | Independent review | Only the author judges its own work |
 | Penetration test | Security-relevant changes ship without being attacked first |
 
@@ -91,6 +113,8 @@ The [wiki](https://github.com/ashishmohanty-99/spec-driven-development/wiki) is 
 | [Lifecycle Options](skills/spec-driven-development-by-ashish-mohanty/references/Lifecycle-Options.md) | Each optional check and what skipping costs |
 | [Project Structure](skills/spec-driven-development-by-ashish-mohanty/references/Project-Structure.md) | Folder structures for new applications |
 | [Test Automation](skills/spec-driven-development-by-ashish-mohanty/references/Test-Automation.md) | Acceptance tests from specs, in three forms |
+| [Parallel Delivery](skills/spec-driven-development-by-ashish-mohanty/references/Parallel-Delivery.md) | Two independent tracks and red-first proof |
+| [Security Scanning](skills/spec-driven-development-by-ashish-mohanty/references/Security-Scanning.md) | The four security layers and how to read them |
 | [Penetration Testing](skills/spec-driven-development-by-ashish-mohanty/references/Penetration-Testing.md) | Strix without exposing an API key |
 | [Security Model](skills/spec-driven-development-by-ashish-mohanty/references/Security-Model.md) | Threats, controls and their tests |
 | [SDD and the AI SDLC](skills/spec-driven-development-by-ashish-mohanty/references/SDD-and-the-AI-SDLC.md) | Why the method exists |

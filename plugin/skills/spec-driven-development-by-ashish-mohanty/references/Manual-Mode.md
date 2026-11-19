@@ -23,6 +23,8 @@ Use the first that applies:
 | `sdd verify` | Apply "The gates" to each feature and report every failure |
 | `sdd gen-tests` | Write one acceptance test per scenario as in "Acceptance tests by hand" |
 | `sdd regression` | Run the project's test command, then the acceptance tests, then the gates |
+| `sdd prove red` / `green` | Run the feature's acceptance tests before the code (they must fail) and after (they must pass, test file unchanged); note both results and the dates in `verification.md` |
+| `sdd security` | Apply "Secret check" to the whole repository, then run whichever code analyser and dependency auditor the stack has; report each as clean, findings or NOT RUN |
 | `sdd audit` | Apply "Secret check" |
 | `sdd pentest` | The person runs Strix themselves; see `Penetration-Testing.md` |
 
@@ -42,7 +44,8 @@ Use the first that applies:
   "baseUrl": null,
   "commands": { "test": null, "e2e": null },
   "lifecycle": { "constitution": true, "clarify": true, "plan": true, "tasks": true, "tests": true,
-                 "e2e": true, "secrets": true, "review": true, "pentest": true },
+                 "e2e": true, "red-first": true, "secrets": true, "code-scan": true, "dependencies": true,
+                 "review": true, "pentest": true },
   "skipped": {},
   "project": { "kind": null, "stack": null }
 }

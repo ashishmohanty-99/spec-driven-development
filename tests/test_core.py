@@ -12,7 +12,7 @@ def sample_repo():
     write(r, "pyproject.toml", '[project]\ndependencies=["fastapi"]\n[tool.x]\ndev=["pytest","ruff","bandit"]')
     write(r, "app/main.py", "x = 1")
     write(r, "tests/test_main.py", "def test_x(): pass")
-    write(r, ".env", "SECRET=hunter2-super-secret")
+    write(r, ".env", "SECRET=hunter2-super-secret")  # sdd:allow-secret (test fixture)
     write(r, ".github/workflows/ci.yml", "name: ci")
     return r
 

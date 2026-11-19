@@ -36,6 +36,8 @@ Yellow is a human decision, blue is agent work that stops at a human gate, green
 | Understand why this process exists | [SDD and the AI SDLC](SDD-and-the-AI-SDLC) |
 | See every phase, who acts, and what to check | [Step-by-Step Workflow](Step-by-Step-Workflow) |
 | Generate acceptance tests from my spec, in my language | [Test Automation](Test-Automation) |
+| Build and test in parallel, with proof the tests are honest | [Parallel Delivery](Parallel-Delivery) |
+| Scan for secrets, vulnerable code and vulnerable packages | [Security Scanning](Security-Scanning) |
 | Run a pentest without exposing my API key | [Penetration Testing](Penetration-Testing) |
 | Know exactly what the tool can and cannot touch | [Security Model](Security-Model) |
 | Look up a command | [CLI Reference](CLI-Reference) |
@@ -45,9 +47,9 @@ Yellow is a human decision, blue is agent work that stops at a human gate, green
 | Piece | What it does |
 |---|---|
 | `sdd` CLI (Python, standard library only) | Profiles the repo, enforces gates, generates tests, guards the pentest |
-| 15 skills | Teach the agent each phase, guided setup and project scaffolding, including the excuses it must not accept |
-| 18 slash commands | `/sdd-setup`, `/sdd-spec`, `/sdd-plan`, `/sdd-build`, `/sdd-next` and the rest |
-| 2 reviewer subagents | Independent review of a diff against its spec; read-only codebase mapping |
+| 17 skills | Teach the agent each phase, guided setup, project scaffolding, parallel delivery and the security gate, including the excuses it must not accept |
+| 21 slash commands | `/sdd-setup`, `/sdd-spec`, `/sdd-plan`, `/sdd-build`, `/sdd-parallel`, `/sdd-security`, `/sdd-next` and the rest |
+| 3 subagents (a spec reviewer, a codebase mapper and an independent tester) | Independent review of a diff against its spec; read-only codebase mapping |
 | Templates | Constitution, spec (EARS requirements), plan, tasks, ADR |
 
 ## The four rules
