@@ -5,31 +5,37 @@ Each phase has the same rhythm: **you ask → the agent produces one artifact an
 ```mermaid
 sequenceDiagram
     actor H as You
-    participant A as AI agent
-    participant C as sdd CLI
-    participant R as Repository (.sdd/)
+    participant A as Builder agent
+    participant T as Tester agent
+    participant C as sdd tool
 
     H->>A: /sdd-spec "idea"
-    A->>R: write spec.md (Status: draft)
-    A-->>H: stops: requirements + open questions
+    A-->>H: spec.md (draft) with open questions
     H->>A: /sdd-clarify
-    A-->>H: up to 5 ranked questions
-    H->>R: set Status: approved
+    H->>H: set Status: approved
     H->>A: /sdd-plan
+    A-->>H: plan.md with a Test contract
+    H->>A: /sdd-tasks
     A->>C: sdd verify
-    C-->>A: gates ok
-    A->>R: write plan.md
-    A-->>H: stops for approval
-    H->>A: /sdd-tasks, then /sdd-build (per task)
-    A->>R: failing test → code → commit
-    A->>C: sdd verify
-    H->>A: /sdd-gen-tests, /sdd-verify
+    C-->>A: every requirement covered
+    H->>A: /sdd-parallel
+    par Test track
+        A->>T: start tester (spec + contract only)
+        T->>C: sdd gen-tests, sdd prove red
+        C-->>T: tests fail, recorded
+    and Build track
+        A->>A: one task at a time, test first
+    end
+    A->>C: sdd prove green
+    C-->>A: same tests pass, recorded
+    H->>A: /sdd-verify
     A->>C: sdd regression --strict
-    C-->>H: pass / fail per step
-    H->>C: sdd pentest (your shell, your key)
+    A->>C: sdd security --strict
+    C-->>H: each layer: clean, findings or NOT RUN
+    H->>C: sdd pentest (your terminal, your key)
     H->>A: /sdd-ship
     A-->>H: readiness report
-    H->>R: merge
+    H->>H: merge
 ```
 
 ## Where a feature can be

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.1
+
+### Changed
+- README rewritten around the real process, step by step: what the person does, what the agent does and what the tool checks at each step, plus a table of what actually runs underneath and how far each security integration has been tested.
+- Wiki Getting Started is now a complete worked example from install to ship; the Home and Step-by-Step diagrams show the parallel tracks, red-first proof and the security gate.
+
 ## 2.3.0
 
 ### Added
